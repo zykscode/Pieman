@@ -1,6 +1,5 @@
 // userResolvers.ts
-import { Prisma } from '@prisma/client';
-import { UserRole } from './graphql/generated/resolvers-types';
+import { Prisma, UserRole } from '@prisma/client';
 import Context from '../context';
 
 const userResolvers = {
