@@ -1,6 +1,12 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import "#/styles/globals.css";
+import PageHeader from "#/components/pageHeader";
+import PageFooter from "#/components/pageFooter";
+import { ThemeProvider } from "../components/theme-provider";
+import { Analytics } from "../components/analytics";
+import { TailwindIndicator } from "../components/tailwind-indicator";
+import { ScrollArea } from "../components/ui/scroll-area";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,8 +21,18 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-      <body className={inter.className}>{children}</body>
+    <html lang="en" suppressHydrationWarning>
+      <body className={`${inter.className} overflow-hidden  bg-transparent `}>
+        <ThemeProvider attribute="class" defaultTheme="light">
+            <PageHeader />
+            <ScrollArea className=" rounded-3xl  w-screen  bg-yellow-500 h-screen">
+              <main className="flex-1">{children}</main>
+            </ScrollArea>
+            <PageFooter />
+          <Analytics />
+          <TailwindIndicator />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }
