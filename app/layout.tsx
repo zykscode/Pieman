@@ -1,12 +1,14 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "#/styles/globals.css";
-import PageHeader from "#/components/pageHeader";
+import "#/styles/try.css";
+import { Analytics } from "@vercel/analytics/react";
+import { ThemeProvider } from "next-themes";
 import PageFooter from "#/components/pageFooter";
-import { ThemeProvider } from "../components/theme-provider";
-import { Analytics } from "../components/analytics";
-import { TailwindIndicator } from "../components/tailwind-indicator";
-import { ScrollArea } from "../components/ui/scroll-area";
+import PageHeader from "#/components/pageHeader";
+import { TailwindIndicator } from "#/components/tailwind-indicator";
+import { ScrollArea } from "#/components/ui/scroll-area";
+import Header from "#/components/header";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -26,7 +28,8 @@ export default function RootLayout({
         <ThemeProvider attribute="class" defaultTheme="light">
             <PageHeader />
             <ScrollArea className=" rounded-3xl  w-screen  bg-yellow-500 h-screen">
-              <main className="flex-1">{children}</main>
+             <Header/>
+              <main className="flex-1 h-screen bg-slate-200 ">{children}</main>
             </ScrollArea>
             <PageFooter />
           <Analytics />

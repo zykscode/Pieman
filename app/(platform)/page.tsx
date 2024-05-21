@@ -1,9 +1,10 @@
+import Hero from "#/components/hero"
 
 
 function Page() {
   return (
-    <div className="page-scroller">
-   page
+    <div className="countdown">
+     <Hero />
     </div>
   )
 }

@@ -8,7 +8,7 @@ export const marketingConfig: MarketingConfig = {
   mainNav: [
     { href:'dashboard', title: 'dashboard', icon: RxDashboard },
     { href:'deals', title: 'deals', icon: GrTransaction },
-    {  href:'dashboard',title: 'settings', icon: RiSettings5Fill },
+    {  href:'settings',title: 'settings', icon: RiSettings5Fill },
     {  href:'profile', title: 'profile', icon: RxAvatar },
   ],
 }

@@ -2,12 +2,13 @@ import Image from 'next/image'
 import React from 'react'
 
 import Me from '#/public/static/images/me.jpg'
+import Link from 'next/link'
 
 function PageLogo() {
   return (
-    <div className="page-icon-inline page-icon-image">
-      <Image alt="page log logo" src={Me} className="icon page-icon" />
-    </div>
+    <Link href={'/'} className=" size-8 flex justify-center  rounded-full bg-yellow-200">
+      <Image alt="" src={Me} className=" size-full rounded-full " />
+    </Link>
   )
 }
 
