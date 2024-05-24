@@ -1,6 +1,6 @@
 // ratingResolvers.ts
 import { Prisma } from '@prisma/client';
-import Context from 'graphql/context';
+import Context from '../context';
 
 const ratingResolvers = {
   Query: {
