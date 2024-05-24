@@ -24,12 +24,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} overflow-hidden  bg-transparent `}>
+      <body className={`${inter.className} overflow-hidden bg-decend  `}>
         <ThemeProvider attribute="class" defaultTheme="light">
             <PageHeader />
-            <ScrollArea className=" rounded-3xl  w-screen  bg-yellow-500 h-screen">
+            <ScrollArea className=" rounded-3xl  w-screen h-screen">
              <Header/>
-              <main className="flex-1 h-screen bg-slate-200 ">{children}</main>
+              <main className="flex-1 h-screen ">{children}</main>
             </ScrollArea>
             <PageFooter />
           <Analytics />

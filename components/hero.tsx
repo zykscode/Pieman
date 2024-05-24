@@ -3,6 +3,7 @@ import AnimatedGradientText from "./AnimatedGradientText";
 
 const Hero = () => {
   return (
+    <div className="flex">
     <div className="mt-16">
       <h1 className="show-counter">
         <AnimatedGradientText
@@ -26,7 +27,9 @@ const Hero = () => {
           endColor={"var(--pink)"}
         />
       </h1>{" "}
+    </div>   
     </div>
+   
   );
 };
 
