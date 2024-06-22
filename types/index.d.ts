@@ -37,13 +37,18 @@ export type AuthResult = {
 
 export type User = AuthResult['user'];
 
-export interface PaymentDTO {
-  amount: number;
-  user_uid: string;
-  created_at: string;
+export 
+interface PaymentDTO {
   identifier: string;
-  metadata: Record<string, any>;
+  user_uid: string;
+  amount: number;
   memo: string;
+  metadata: Record<string, any>;
+  from_address: string;
+  to_address: string;
+  direction: "user_to_app" | "app_to_user";
+  created_at: string;
+  network: "Pi Network" | "Pi Testnet";
   status: {
     developer_approved: boolean;
     transaction_verified: boolean;
@@ -51,14 +56,12 @@ export interface PaymentDTO {
     cancelled: boolean;
     user_cancelled: boolean;
   };
-  to_address: string;
   transaction: null | {
     txid: string;
     verified: boolean;
     _link: string;
   };
 }
-
 export interface MyPaymentMetadata {}
 
 
