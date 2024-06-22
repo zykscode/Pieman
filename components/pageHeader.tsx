@@ -8,8 +8,7 @@ import Navs from './navs'
 const PageHeader = () => {
    return (
     <header className="z-50 bg-background rounded-t-2xl w-full  fixed bottom-0 ">
-    <div className="nav-header flex  justify-around  ">
-      <Breadcrumbs />
+    <div className="nav-header flex justify-between  ">
       <Navs  items={marketingConfig.mainNav} />
     </div>
   </header> )

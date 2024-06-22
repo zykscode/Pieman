@@ -1,8 +1,6 @@
 'use client'
 import Link from 'next/link'
 import React from 'react'
-// import { RxAvatar } from "react-icons/rx";
-// import { ModeToggle } from './mode-toggle'
 import { NavItem } from '../types'
 
 
