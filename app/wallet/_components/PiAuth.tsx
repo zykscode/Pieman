@@ -3,14 +3,7 @@
 import * as React from "react";
 import { usePiNetwork } from '#/hooks/usePiNetwork';
 import { useState } from 'react';
-import {
-  ToastProvider,
-  ToastViewport,
-  Toast,
-  ToastTitle,
-  ToastDescription,
-  ToastClose,
-} from '#/components/ui/toast';
+
 import { useToast } from '#/components/ui/use-toast';
 
 export interface AuthResult {
@@ -113,12 +106,10 @@ export default function PiAuth() {
   };
 
   return (
-    <ToastProvider>
       <div className='yell bg-yellow-300 w-full'>
         <button onClick={authenticate}>Authenticate with Pi Network</button>
         {authInfo && <p>Authenticated as: {authInfo.user.username}</p>}
       </div>
-      <ToastViewport />
-    </ToastProvider>
+    
   );
 }
