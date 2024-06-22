@@ -48,7 +48,7 @@ export interface PaymentDTO {
 }
 
 export default function PiAuth() {
-  const { addToast } = useToast();
+  const { toast } = useToast();
   const Pi = usePiNetwork(process.env.NODE_ENV !== 'production');
   const [authInfo, setAuthInfo] = useState<AuthResult | null>(null);
 
@@ -58,8 +58,8 @@ export default function PiAuth() {
     try {
       const scopes = ['username', 'payments', 'wallet_address'];
       const onIncompletePaymentFound = (payment: PaymentDTO) => {
-        addToast({
-          variant: 'warning',
+        toast({
+          variant: 'destructive',
           title: 'Incomplete payment found',
           description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
         });
@@ -67,8 +67,8 @@ export default function PiAuth() {
 
       const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
       setAuthInfo(auth);
-      addToast({
-        variant: 'success',
+      toast({
+        variant: 'default',
         title: 'Authentication successful',
         description: `Authenticated as ${auth.user.username}`,
       });
@@ -88,15 +88,15 @@ export default function PiAuth() {
         }
 
         const verifiedUser = await response.json();
-        addToast({
-          variant: 'success',
+       toast({
+          variant: 'default',
           title: 'Server verified user',
           description: `User ${verifiedUser.username} has been verified by the server.`,
         });
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-        addToast({
-          variant: 'error',
+       toast({
+          variant: 'destructive',
           title: 'Server verification error',
           description: errorMessage,
         });
@@ -104,8 +104,8 @@ export default function PiAuth() {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-      addToast({
-        variant: 'error',
+     toast({
+        variant: 'destructive',
         title: 'Authentication failed',
         description: errorMessage,
       });
