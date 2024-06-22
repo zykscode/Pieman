@@ -1,5 +1,8 @@
 // 'use client';
 
+import PiAuth from "./_components/PiAuth";
+import PiPayment from "./_components/PiPayement";
+
 // import { useUser, UserProvider } from '#/contexts/UserContext';
 // import { MyPaymentMetadata, PaymentDTO } from '#/types';
 // import React, { useState } from 'react';
@@ -69,15 +72,15 @@
 // export default HomePage;
 
 
+// app/page.js
+;
 
-import React from 'react'
-
-type Props = {}
-
-const Page = (props: Props) => {
+export default function Home() {
   return (
-    <div>Wallet</div>
-  )
+    <main>
+      <h1>Pi Network Integration</h1>
+      <PiAuth />
+      <PiPayment />
+    </main>
+  );
 }
-
-export default Page
