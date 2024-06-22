@@ -11,6 +11,21 @@ export type NavItem = {
   disabled?: boolean
 }
 
+export interface AxiosClientOptions {
+  baseURL?: string;
+  timeout?: number;
+  headers?: Record<string, string>;
+}
+
+export type NetworkPassphrase = "Pi Network" | "Testnet";
+
+export interface PaymentArgs {
+  amount: number;
+  memo: string;
+  metadata: string;
+  uid: string;
+}
+
 
 export type AuthResult = {
   accessToken: string,
