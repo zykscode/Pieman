@@ -17,7 +17,7 @@ export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   
   const signIn = async () => {
     const scopes = ['username', 'payments'];
-    const authResult: AuthResult = await window.Pi.authenticate(scopes, onIncompletePaymentFound);
+    const authResult: AuthResult = await window.Pi?.authenticate(scopes, onIncompletePaymentFound);
     signInUser(authResult);
     setUser(authResult.user);
   };
