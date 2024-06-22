@@ -1,9 +1,7 @@
-'use client';
+'use client'
 
-import * as React from "react";
-import { usePiNetwork } from '#/hooks/usePiNetwork';
 import { useState } from 'react';
-
+import { usePiNetwork } from '#/hooks/usePiNetwork';
 import { useToast } from '#/components/ui/use-toast';
 
 export interface AuthResult {
@@ -20,7 +18,7 @@ export interface PaymentDTO {
   user_uid: string;
   amount: number;
   memo: string;
-  metadata: Object;
+  metadata: Record<string, any>;
   from_address: string;
   to_address: string;
   direction: "user_to_app" | "app_to_user";
@@ -48,70 +46,83 @@ export default function PiAuth() {
   const authenticate = async () => {
     if (!Pi) return;
 
-    try {
-      const scopes = ['username', 'payments', 'wallet_address'];
-      const onIncompletePaymentFound = (payment: PaymentDTO) => {
-        toast({
-          variant: 'destructive',
-          title: 'Incomplete payment found',
-          description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
-        });
-      };
+    const scopes = ['username', 'payments', 'wallet_address'];
 
-      const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
-      setAuthInfo(auth);
+    const handleIncompletePayment = (payment: PaymentDTO) => {
       toast({
-        variant: 'default',
-        title: 'Authentication successful',
-        description: `Authenticated as ${auth.user.username}`,
+        variant: 'destructive',
+        title: 'Incomplete payment found',
+        description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
       });
+    };
 
-      // Verify the authentication with your server
-      try {
-        const response = await fetch('/api/verify-auth', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ accessToken: auth.accessToken }),
-        });
-
-        if (!response.ok) {
-          throw new Error('Server verification failed');
-        }
-
-        const verifiedUser = await response.json();
-       toast({
+    try {
+      const auth = await authenticateWithPi(scopes, handleIncompletePayment);
+      if (auth) {
+        setAuthInfo(auth);
+        toast({
           variant: 'default',
-          title: 'Server verified user',
-          description: `User ${verifiedUser.username} has been verified by the server.`,
+          title: 'Authentication successful',
+          description: `Authenticated as ${auth.user.username}`,
         });
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-       toast({
-          variant: 'destructive',
-          title: 'Server verification error',
-          description: errorMessage,
-        });
-        setAuthInfo(null);
+        await verifyAuthenticationWithServer(auth.accessToken);
       }
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-     toast({
-        variant: 'destructive',
-        title: 'Authentication failed',
-        description: errorMessage,
-      });
+      handleAuthenticationError(error, 'Authentication failed');
     }
   };
 
-  console.log(authInfo?.user)
+  const authenticateWithPi = async (scopes: string[], handleIncompletePayment: (payment: PaymentDTO) => void): Promise<AuthResult | null> => {
+    try {
+      return await Pi!.authenticate(scopes, handleIncompletePayment);
+    } catch (error) {
+      handleAuthenticationError(error, 'Pi authentication failed');
+      return null;
+    }
+  };
+
+  const verifyAuthenticationWithServer = async (accessToken: string) => {
+    try {
+      const response = await fetch('/api/verify-auth', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ accessToken }),
+      });
+
+      if (!response.ok) {
+        throw new Error('Server verification failed');
+      }
+
+      const verifiedUser = await response.json();
+      toast({
+        variant: 'default',
+        title: 'Server verified user',
+        description: `User ${verifiedUser.username} has been verified by the server.`,
+      });
+    } catch (error) {
+      handleAuthenticationError(error, 'Server verification error');
+      setAuthInfo(null);
+    }
+  };
+
+  const handleAuthenticationError = (error: unknown, defaultMessage: string) => {
+    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+    toast({
+      variant: 'destructive',
+      title: defaultMessage,
+      description: errorMessage,
+    });
+  };
 
   return (
-      <div className='yell bg-yellow-300 w-full'>
+    <div className='bg-yellow-800 w-full'>
+      {!authInfo ? (
         <button onClick={authenticate}>Authenticate with Pi Network</button>
-        {authInfo && <p>Authenticated as: {authInfo.user.username}</p>}
-      </div>
-    
+      ) : (
+        <p>Authenticated as: {authInfo.user.username}</p>
+      )}
+    </div>
   );
 }
