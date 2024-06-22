@@ -9,6 +9,7 @@ import PageHeader from "#/components/pageHeader";
 import { TailwindIndicator } from "#/components/tailwind-indicator";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import Header from "#/components/header";
+import { Toaster } from "#/components/ui/toaster";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -32,6 +33,7 @@ export default function RootLayout({
               <main className="flex-1 h-screen ">{children}</main>
             </ScrollArea>
             <PageFooter />
+            <Toaster />
           <Analytics />
           <TailwindIndicator />
         </ThemeProvider>

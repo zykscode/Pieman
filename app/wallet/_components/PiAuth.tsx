@@ -1,8 +1,17 @@
-// app/components/PiAuth.tsx
 'use client';
 
+import * as React from "react";
 import { usePiNetwork } from '#/hooks/usePiNetwork';
 import { useState } from 'react';
+import {
+  ToastProvider,
+  ToastViewport,
+  Toast,
+  ToastTitle,
+  ToastDescription,
+  ToastClose,
+} from '#/components/ui/toast';
+import { useToast } from '#/components/ui/use-toast';
 
 export interface AuthResult {
   accessToken: string;
@@ -39,6 +48,7 @@ export interface PaymentDTO {
 }
 
 export default function PiAuth() {
+  const { addToast } = useToast();
   const Pi = usePiNetwork(process.env.NODE_ENV !== 'production');
   const [authInfo, setAuthInfo] = useState<AuthResult | null>(null);
 
@@ -48,13 +58,20 @@ export default function PiAuth() {
     try {
       const scopes = ['username', 'payments', 'wallet_address'];
       const onIncompletePaymentFound = (payment: PaymentDTO) => {
-        console.log('Incomplete payment found:', payment);
-        // Handle incomplete payment (e.g., send to your server for completion)
+        addToast({
+          variant: 'warning',
+          title: 'Incomplete payment found',
+          description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
+        });
       };
 
       const auth = await Pi.authenticate(scopes, onIncompletePaymentFound);
       setAuthInfo(auth);
-      console.log("Authentication successful:", auth);
+      addToast({
+        variant: 'success',
+        title: 'Authentication successful',
+        description: `Authenticated as ${auth.user.username}`,
+      });
 
       // Verify the authentication with your server
       try {
@@ -65,26 +82,43 @@ export default function PiAuth() {
           },
           body: JSON.stringify({ accessToken: auth.accessToken }),
         });
-        
+
         if (!response.ok) {
           throw new Error('Server verification failed');
         }
-        
+
         const verifiedUser = await response.json();
-        console.log("Server verified user:", verifiedUser);
+        addToast({
+          variant: 'success',
+          title: 'Server verified user',
+          description: `User ${verifiedUser.username} has been verified by the server.`,
+        });
       } catch (error) {
-        console.error("Server verification error:", error);
+        const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+        addToast({
+          variant: 'error',
+          title: 'Server verification error',
+          description: errorMessage,
+        });
         setAuthInfo(null);
       }
     } catch (error) {
-      console.error("Authentication failed:", error);
+      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      addToast({
+        variant: 'error',
+        title: 'Authentication failed',
+        description: errorMessage,
+      });
     }
   };
 
   return (
-    <div>
-      <button onClick={authenticate}>Authenticate with Pi Network</button>
-      {authInfo && <p>Authenticated as: {authInfo.user.username}</p>}
-    </div>
+    <ToastProvider>
+      <div className='yell bg-yellow-300 w-full'>
+        <button onClick={authenticate}>Authenticate with Pi Network</button>
+        {authInfo && <p>Authenticated as: {authInfo.user.username}</p>}
+      </div>
+      <ToastViewport />
+    </ToastProvider>
   );
 }
