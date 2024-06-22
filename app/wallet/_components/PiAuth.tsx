@@ -105,6 +105,8 @@ export default function PiAuth() {
     }
   };
 
+  console.log(authInfo?.user)
+
   return (
       <div className='yell bg-yellow-300 w-full'>
         <button onClick={authenticate}>Authenticate with Pi Network</button>
