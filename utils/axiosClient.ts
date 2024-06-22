@@ -1,4 +1,5 @@
-import axios from 'axios';
+import { AxiosClientOptions } from '#/types';
+import axios, { AxiosInstance } from 'axios';
 
 const axiosClient = axios.create({
   baseURL: process.env.PI_API_KEY || '/api',
