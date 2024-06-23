@@ -1,24 +1,20 @@
-import { NextApiRequest, NextApiResponse } from 'next';
+import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method !== 'GET') {
-    res.setHeader('Allow', ['GET']);
-    return res.status(405).end(`Method ${req.method} Not Allowed`);
-  }
+export async function GET(req: NextRequest) {
+  const accessToken = req.headers.get('Authorization')?.split(' ')[1];
 
-  const { accessToken } = req.body;
   if (!accessToken) {
-    return res.status(400).json({ error: 'Access token is required' });
+    return NextResponse.json({ error: 'Access token is required' }, { status: 400 });
   }
 
   try {
     const response = await axios.get('https://api.minepi.com/v2/me', {
       headers: { Authorization: `Bearer ${process.env.PI_API_KEY}` },
     });
-    return res.status(200).json(response.data);
+    return NextResponse.json(response.data);
   } catch (error) {
     console.error('Authentication error:', error);
-    return res.status(401).json({ error: 'Authentication failed' });
+    return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
   }
 }
