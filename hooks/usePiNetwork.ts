@@ -1,4 +1,8 @@
+'use client';
+
+
 // app/hooks/usePiNetwork.ts
+
 import { AuthResult, PaymentDTO } from '#/types';
 import { useState, useEffect } from 'react';
 
