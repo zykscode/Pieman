@@ -20,27 +20,29 @@ async function main() {
       email: generateUniqueEmail('John Doe'),
       password,
       role: 'USER',
+      emailVerified: new Date(),
     },
   });
-
+  
   const user2 = await prisma.user.create({
     data: {
       name: 'Jane Smith',
       email: generateUniqueEmail('Jane Smith'),
       password,
       role: 'USER',
+      emailVerified: new Date(),
     },
   });
-
+  
   const admin = await prisma.user.create({
     data: {
       name: 'Admin User',
       email: generateUniqueEmail('Admin User'),
       password: adminPassword,
       role: 'ADMIN',
+      emailVerified: new Date(),
     },
   });
-
   // Seed transactions
   const transaction1 = await prisma.transaction.create({
     data: {

@@ -1,15 +1,20 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
+import { Analytics } from "@vercel/analytics/react";
+
+import { SessionProvider } from "next-auth/react";
+
 import "#/styles/globals.css";
 import "#/styles/try.css";
-import { Analytics } from "@vercel/analytics/react";
-import { ThemeProvider } from "next-themes";
+
 import PageFooter from "#/components/pageFooter";
 import PageHeader from "#/components/pageHeader";
 import { TailwindIndicator } from "#/components/tailwind-indicator";
 import { ScrollArea } from "#/components/ui/scroll-area";
 import Header from "#/components/header";
+import {AuthProvider} from '#/components/sessionProvider'
 import { Toaster } from "#/components/ui/toaster";
+import { ThemeProvider } from "#/components/theme-provider";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -20,24 +25,26 @@ export const metadata: Metadata = {
 
 export default function RootLayout({
   children,
-}: Readonly<{
+}: {
   children: React.ReactNode;
-}>) {
+}) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} overflow-hidden bg-decend  `}>
-        <ThemeProvider attribute="class" defaultTheme="light">
+      <body className={`${inter.className} overflow-hidden bg-decend`}>
+        <AuthProvider>
+          <ThemeProvider attribute="class" defaultTheme="light">
             <PageHeader />
-            <ScrollArea className=" rounded-3xl  w-screen h-screen">
-             <Header/>
-              <main className="flex-1 h-screen ">{children}</main>
+            <ScrollArea className="rounded-3xl w-screen h-screen">
+              <Header />
+              <main className="flex-1 h-screen">{children}</main>
             </ScrollArea>
             <PageFooter />
             <Toaster />
-          <Analytics />
-          <TailwindIndicator />
-        </ThemeProvider>
-      </body>
+            <Analytics />
+            <TailwindIndicator />
+          </ThemeProvider>
+          </AuthProvider>
+    </body>
     </html>
   );
 }
