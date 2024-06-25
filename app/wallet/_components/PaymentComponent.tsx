@@ -3,7 +3,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useToast } from '#/components/ui/use-toast';
-import PiNetwork, { PaymentDTO } from 'pi-backend'; // Import PiNetwork and PaymentDTO
+import PiNetwork from 'pi-backend'; // Import PiNetwork and PaymentDTO
+import { PaymentDTO } from '#/types';
 
 interface PaymentComponentProps {
   userInfo: {
