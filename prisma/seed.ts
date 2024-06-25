@@ -1,11 +1,15 @@
-import { PrismaClient } from '@prisma/client';
-import bcrypt from 'bcrypt';
+const { PrismaClient } = require('@prisma/client');
+const bcrypt = require('bcrypt');
 
 const prisma = new PrismaClient();
 
 const generateUniqueEmail = (name: string) => {
   const randomString = Math.random().toString(36).substring(2, 8);
   return `${name.replace(' ', '_').toLowerCase()}_${randomString}@example.com`;
+};
+
+const generateUniquePaymentId = () => {
+  return `payment_${Math.random().toString(36).substring(2, 15)}`;
 };
 
 async function main() {
@@ -43,6 +47,7 @@ async function main() {
       emailVerified: new Date(),
     },
   });
+
   // Seed transactions
   const transaction1 = await prisma.transaction.create({
     data: {
@@ -50,6 +55,7 @@ async function main() {
       seller: { connect: { id: user2.id } },
       piAmount: 10.5,
       nairaAmount: 5000,
+      paymentId: generateUniquePaymentId(), // Add this line
       rate: 476.19, // Example exchange rate
       status: 'PENDING',
     },
@@ -61,6 +67,7 @@ async function main() {
       seller: { connect: { id: user1.id } },
       piAmount: 20.0,
       nairaAmount: 8000,
+      paymentId: generateUniquePaymentId(), // Add this line
       rate: 400.0, // Example exchange rate
       status: 'CONFIRMED',
     },

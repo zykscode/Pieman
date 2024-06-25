@@ -77,13 +77,13 @@ model Rating {
 
 model Transaction {
   id          String            @id @default(cuid())
+  paymentId   String            @unique // Add this line
   buyer       User              @relation("TransactionBuyer", fields: [buyerId], references: [id])
   buyerId     String
   seller      User              @relation("TransactionSeller", fields: [sellerId], references: [id])
   sellerId    String
   piAmount    Float
   nairaAmount Float
-  paymentId   String
   rate        Float
   description String?
   status      TransactionStatus @default(PENDING)
