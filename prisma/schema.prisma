@@ -83,6 +83,7 @@ model Transaction {
   sellerId    String
   piAmount    Float
   nairaAmount Float
+  paymentId   String?
   rate        Float
   description String?
   status      TransactionStatus @default(PENDING)

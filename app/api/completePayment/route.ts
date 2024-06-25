@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     // Update transaction status
     await prisma.transaction.updateMany({
-      where: { id: paymentId },  // assuming paymentId is the transaction ID
+      where: { paymentId: paymentId },  // assuming paymentId is the transaction ID
       data: { status: 'CONFIRMED' },
     });
 
