@@ -14,7 +14,7 @@ export async function POST(req: Request) {
 
     // Update transaction with txid
     await prisma.transaction.updateMany({
-      where: { id: paymentId },
+      where: { paymentId: paymentId },
       data: { id: txid },
     });
 
