@@ -1,5 +1,3 @@
-// app/api/completePayment/route.ts
-
 import { NextResponse } from 'next/server';
 import pi from '../../../utils/piNetwork';
 import { PrismaClient } from '@prisma/client';
