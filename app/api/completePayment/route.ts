@@ -12,8 +12,8 @@ export async function POST(req: Request) {
   try {
     const completedPayment = await pi.completePayment(paymentId, txid);
 
-    // First, find the transaction by paymentId
-    const transaction = await prisma.transaction.findUnique({
+    // Find the transaction by paymentId
+    const transaction = await prisma.transaction.findFirst({
       where: { paymentId: paymentId },
     });
 
@@ -21,7 +21,7 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: 'Transaction not found' }, { status: 404 });
     }
 
-    // Then update the transaction using its id
+    // Update the transaction
     await prisma.transaction.update({
       where: { id: transaction.id },
       data: { status: 'CONFIRMED' },
