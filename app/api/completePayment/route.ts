@@ -13,8 +13,8 @@ export async function POST(req: Request) {
     const completedPayment = await pi.completePayment(paymentId, txid);
 
     // Update transaction status
-    await prisma.transaction.updateMany({
-      where: { paymentId: paymentId },  // using paymentId field from the updated schema
+    await prisma.transaction.update({
+      where: { paymentId: paymentId },
       data: { status: 'CONFIRMED' },
     });
 
