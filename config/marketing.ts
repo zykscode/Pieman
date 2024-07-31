@@ -8,7 +8,7 @@ import { TbExchange } from "react-icons/tb";
 
 export const marketingConfig: MarketingConfig = {
   mainNav: [
-    { href:'home', title: 'home', icon: RiHome7Fill},
+    { href:'', title: 'home', icon: RiHome7Fill},
     { href:'transaction', title: 'transaction', icon: TbExchange },
     { href:'wallet', title: 'wallet', icon: IoWalletOutline },
     { href:'dashboard', title: 'profile', icon: RxAvatar  },

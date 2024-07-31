@@ -32,15 +32,12 @@ export default function RootLayout({
 
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} bg-yellow-50 flex flex-col overflow-hidden bg-decend`}>
+      <body className={`${inter.className} min-h-screen flex flex-col bg-green-300 `}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
-            <PageHeader />
-            <ScrollArea className="rounded-3xl w-screen h-screen">
               <Header />
-              <main className="flex-1 h-screen">{children}</main>
-            </ScrollArea>
-            <PageFooter />
+           <PageHeader />   
+           <main className="flex-grow px-4 bg-red-200 ">{children}</main>      
             <Toaster />
             <Analytics />
             <TailwindIndicator />

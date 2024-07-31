@@ -4,7 +4,7 @@ type Props = {}
 
 const Page = (props: Props) => {
   return (
-    <div className='flex flex-col h-full justify-center bg-yellow-200' >Page</div>
+    <div className=' bg-yellow-500 flex-grow' >Page</div>
   )
 }
 
