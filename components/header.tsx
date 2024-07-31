@@ -9,7 +9,7 @@ const Header = (props: Props) => {
   return (
     <div className='fixed w-full rounded-t-3xl h-16 flex justify-between p-4 '>
         <PageLogo/>
-        <Link href={'/profile'}>
+        <Link href={'/dashboard'}>
         <RxAvatar className='size-full'/>
         </Link>
     </div>

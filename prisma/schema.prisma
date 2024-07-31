@@ -11,7 +11,7 @@ model User {
   id               String        @id @default(cuid())
   name             String?
   email            String        @unique
-  emailVerified    DateTime? // Added this field
+  emailVerified    DateTime?
   password         String?
   image            String?
   role             UserRole      @default(USER)
@@ -76,19 +76,54 @@ model Rating {
 }
 
 model Transaction {
-  id          String            @id @default(cuid())
-  paymentId   String            @unique // Add this line
-  buyer       User              @relation("TransactionBuyer", fields: [buyerId], references: [id])
-  buyerId     String
-  seller      User              @relation("TransactionSeller", fields: [sellerId], references: [id])
-  sellerId    String
-  piAmount    Float
-  nairaAmount Float
-  rate        Float
-  description String?
-  status      TransactionStatus @default(PENDING)
-  createdAt   DateTime          @default(now())
-  updatedAt   DateTime          @default(now())
+  id                String              @id @default(cuid())
+  paymentId         String              @unique
+  buyer             User                @relation("TransactionBuyer", fields: [buyerId], references: [id])
+  buyerId           String
+  seller            User                @relation("TransactionSeller", fields: [sellerId], references: [id])
+  sellerId          String
+  piAmount          Float
+  nairaAmount       Float
+  rate              Float
+  description       String?
+  status            TransactionStatus   @default(PENDING)
+  createdAt         DateTime            @default(now())
+  updatedAt         DateTime            @default(now())
+  escrow            Escrow?
+  escrowWalletId    String?
+  escrowWallet      EscrowWallet?       @relation(fields: [escrowWalletId], references: [id])
+  EscrowTransaction EscrowTransaction[]
+}
+
+model Escrow {
+  id            String       @id @default(cuid())
+  transaction   Transaction  @relation(fields: [transactionId], references: [id])
+  transactionId String       @unique
+  amount        Float
+  status        EscrowStatus @default(PENDING)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+}
+
+model EscrowWallet {
+  id                String              @id @default(cuid())
+  address           String              @unique
+  balance           Float               @default(0.0)
+  transactions      Transaction[]
+  EscrowTransaction EscrowTransaction[]
+}
+
+model EscrowTransaction {
+  id                   String                  @id @default(cuid())
+  escrowWalletId       String
+  escrowWallet         EscrowWallet            @relation(fields: [escrowWalletId], references: [id])
+  amount               Float
+  type                 EscrowTransactionType
+  status               EscrowTransactionStatus @default(PENDING)
+  relatedTransactionId String?
+  relatedTransaction   Transaction?            @relation(fields: [relatedTransactionId], references: [id])
+  createdAt            DateTime                @default(now())
+  updatedAt            DateTime                @updatedAt
 }
 
 enum UserRole {
@@ -100,4 +135,22 @@ enum TransactionStatus {
   PENDING
   CONFIRMED
   REFUNDED
+}
+
+enum EscrowStatus {
+  PENDING
+  FUNDED
+  RELEASED
+  REFUNDED
+}
+
+enum EscrowTransactionType {
+  DEPOSIT
+  WITHDRAWAL
+}
+
+enum EscrowTransactionStatus {
+  PENDING
+  COMPLETED
+  FAILED
 }

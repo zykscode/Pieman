@@ -1,5 +1,11 @@
 'use client'
 
+import WalletCard from "#/components/WalletCard"
+import { Button } from "#/components/ui/button"
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "#/components/ui/card"
+import { Input } from "#/components/ui/input"
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "#/components/ui/select"
+import { Label } from "@radix-ui/react-label"
 import { useSession, signIn, signOut } from "next-auth/react"
 
 export default function Component() {
@@ -13,7 +19,7 @@ export default function Component() {
     };
     const firstName = getFirstName(user.name!)
     return (
-      <>
+      <div className="h-full w-full mt-24 flex flex-col bg-yellow-400 mx-auto">
        <div className="bg-white p-4 shadow-sm">
       <div className="flex justify-between items-center">
         <h1 className="text-xl font-semibold">Welcome {firstName}</h1>
@@ -23,15 +29,18 @@ export default function Component() {
       </div>
       <p className="text-sm text-gray-600">How's the weather in your region?</p>
     </div>
+  <WalletCard />
+
+    <div className=" bg-yellow-300">
         Signed in as {user.email} <br />
         <button onClick={() => signOut()}>Sign out</button>
-      </>
+    </div>  </div>
     )
   }
   return (
-    <>
+    <div>
       Not signed in <br />
       <button onClick={() => signIn()}>Sign in</button>
-    </>
+    </div>
   )
 }

@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
 
-import { SessionProvider } from "next-auth/react";
-
 import "#/styles/globals.css";
 import "#/styles/try.css";
 
@@ -15,6 +13,8 @@ import Header from "#/components/header";
 import {AuthProvider} from '#/components/sessionProvider'
 import { Toaster } from "#/components/ui/toaster";
 import { ThemeProvider } from "#/components/theme-provider";
+
+
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,9 +28,11 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+
+
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} overflow-hidden bg-decend`}>
+      <body className={`${inter.className} bg-yellow-50 flex flex-col overflow-hidden bg-decend`}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
             <PageHeader />

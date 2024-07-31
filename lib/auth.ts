@@ -4,6 +4,7 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+import { CustomUser } from '#/types';
 
 const prisma = new PrismaClient();
 
@@ -24,7 +25,7 @@ export const authOptions: NextAuthOptions = {
           email: profile.email,
           image: profile.picture,
           emailVerified: profile.email_verified ? new Date().toISOString() : null,
-        }
+        };
       },
     }),
     CredentialsProvider({
@@ -42,34 +43,46 @@ export const authOptions: NextAuthOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) {
-          return null;
-        }
-
-        const isValid = await bcrypt.compare(credentials.password, user.password);
-        
-        if (isValid) {
+        if (user) {
+          const isValid = await bcrypt.compare(credentials.password, user.password);
+          if (!isValid) {
+            return null;
+          }
           return {
             id: user.id,
             name: user.name,
             email: user.email,
             image: user.image,
             emailVerified: user.emailVerified?.toISOString() || null,
-          };
+          } as CustomUser;
+        } else {
+          const hashedPassword = await bcrypt.hash(credentials.password, 10);
+          const newUser = await prisma.user.create({
+            data: {
+              email: credentials.email,
+              password: hashedPassword,
+            },
+          });
+          return {
+            id: newUser.id,
+            name: newUser.name,
+            email: newUser.email,
+            image: newUser.image,
+            emailVerified: newUser.emailVerified?.toISOString() || null,
+          } as CustomUser;
         }
-
-        return null;
       },
     }),
   ],
   callbacks: {
-    async jwt({ token, user, account }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.id = user.id;
-        token.name = user.name;
-        token.email = user.email;
-        token.picture = user.image;
-        token.emailVerified = user.emailVerified;
+        const customUser = user as CustomUser;
+        token.id = customUser.id;
+        token.name = customUser.name;
+        token.email = customUser.email;
+        token.picture = customUser.image;
+        token.emailVerified = customUser.emailVerified;
       } else if (token.email) {
         const dbUser = await prisma.user.findUnique({
           where: { email: token.email },

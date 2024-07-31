@@ -6012,7 +6012,7 @@ select {
   --tw-invert: ;
   --tw-saturate: ;
   --tw-sepia: ;
-  --tw-drop-shadow:      
+  --tw-drop-shadow:       
 ;
 }
 
@@ -7564,5 +7564,18 @@ a.breadcrumb:hover {
   33.333%,
   83.333% {
     opacity: 0;
+  }
+}
+
+/* styles/globals.css */
+@media (min-width: 768px) {
+  .mobile-only {
+    display: none;
+  }
+}
+
+@media (max-width: 767px) {
+  .desktop-only {
+    display: none;
   }
 }

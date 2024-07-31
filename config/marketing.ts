@@ -11,6 +11,6 @@ export const marketingConfig: MarketingConfig = {
     { href:'home', title: 'home', icon: RiHome7Fill},
     { href:'transaction', title: 'transaction', icon: TbExchange },
     { href:'wallet', title: 'wallet', icon: IoWalletOutline },
-    { href:'profile', title: 'profile', icon: RxAvatar  },
+    { href:'dashboard', title: 'profile', icon: RxAvatar  },
   ],
 }
