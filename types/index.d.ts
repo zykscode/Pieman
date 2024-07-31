@@ -37,14 +37,10 @@ export type AuthResult = {
 
 export type User = AuthResult['user'];
 
-type CustomUser = {
-  id: string;
-  name?: string | null;
-  email?: string | null;
-  image?: string | null;
-  emailVerified?: string | null;
-};
 
+export interface CustomUser extends User {
+  emailVerified: Date | null;
+}
 
 export 
 interface PaymentDTO {

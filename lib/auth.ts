@@ -6,6 +6,7 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { CustomUser } from '#/types';
 
+
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
@@ -24,7 +25,7 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          emailVerified: profile.email_verified ? new Date().toISOString() : null,
+          emailVerified: profile.email_verified ? new Date(profile.email_verified) : null,
         };
       },
     }),
@@ -53,7 +54,7 @@ export const authOptions: NextAuthOptions = {
             name: user.name,
             email: user.email,
             image: user.image,
-            emailVerified: user.emailVerified?.toISOString() || null,
+            emailVerified: user.emailVerified,
           } as CustomUser;
         } else {
           const hashedPassword = await bcrypt.hash(credentials.password, 10);
@@ -68,7 +69,7 @@ export const authOptions: NextAuthOptions = {
             name: newUser.name,
             email: newUser.email,
             image: newUser.image,
-            emailVerified: newUser.emailVerified?.toISOString() || null,
+            emailVerified: newUser.emailVerified,
           } as CustomUser;
         }
       },
@@ -92,7 +93,7 @@ export const authOptions: NextAuthOptions = {
           token.name = dbUser.name;
           token.email = dbUser.email;
           token.picture = dbUser.image;
-          token.emailVerified = dbUser.emailVerified?.toISOString() || null;
+          token.emailVerified = dbUser.emailVerified;
         }
       }
       return token;
@@ -103,7 +104,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture as string | null;
-        session.user.emailVerified = token.emailVerified as string | null;
+        // session.user.emailVerified = token.emailVerified as Date | null;
       }
       return session;
     },
