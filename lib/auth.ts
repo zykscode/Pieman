@@ -104,7 +104,7 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture as string | null;
-        // session.user.emailVerified = token.emailVerified as Date | null;
+      //   session.user.emailVerified = token.emailVerified as Date | null;
       }
       return session;
     },
