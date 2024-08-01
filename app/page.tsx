@@ -18,7 +18,11 @@ const Page = (props: Props) => {
   return (
     <div className='flex-grow flex flex-col bg-green-500'>
       {isFirstTimeVisitor ? (
+        <div className="flex flex-col">
         <FirstTimeVisitor />
+        <div className="h min-h-screen bg-yellow-200">
+          hdhd
+        </div></div>
       ) : (
         <div>
           <h1>Welcome back!</h1>

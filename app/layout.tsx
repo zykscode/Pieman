@@ -1,10 +1,8 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Analytics } from "@vercel/analytics/react";
-
 import "#/styles/globals.css";
 import "#/styles/try.css";
-
 import PageFooter from "#/components/pageFooter";
 import PageHeader from "#/components/pageHeader";
 import { TailwindIndicator } from "#/components/tailwind-indicator";
@@ -13,8 +11,6 @@ import Header from "#/components/header";
 import {AuthProvider} from '#/components/sessionProvider'
 import { Toaster } from "#/components/ui/toaster";
 import { ThemeProvider } from "#/components/theme-provider";
-
-
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,22 +24,22 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-
-
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen flex flex-col bg-green-300 `}>
+      <body className={`${inter.className} min-h-screen bg-green-300`}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
+            <div className="grid pb-0 grid-rows-[auto_1fr_auto] min-h-screen">
               <Header />
-           <PageHeader />   
-           <main className="flex-grow flex flex-col px-4 bg-red-300 ">{children}</main>      
+              <main className="overflow-auto  px-4">{children}</main>
+              <PageHeader />
+            </div>
             <Toaster />
             <Analytics />
             <TailwindIndicator />
           </ThemeProvider>
-          </AuthProvider>
-    </body>
+        </AuthProvider>
+      </body>
     </html>
   );
 }
