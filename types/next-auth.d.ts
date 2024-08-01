@@ -1,3 +1,4 @@
+// next-auth.d.ts
 import { DefaultSession, DefaultUser } from 'next-auth';
 import { JWT as NextAuthJWT } from 'next-auth/jwt';
 
@@ -7,12 +8,17 @@ declare module 'next-auth' {
   interface Session {
     user: DefaultUser & {
       id: UserId;
+      role: string;
+      accessToken?: string;
     };
     accessToken?: string;
   }
 
   interface User extends DefaultUser {
     id: UserId;
+    role: string;
+    emailVerified?: Date | null;
+    accessToken?: string;
   }
 
   interface SignInResponse {
@@ -23,6 +29,7 @@ declare module 'next-auth' {
 declare module 'next-auth/jwt' {
   interface JWT {
     id: UserId;
+    role: string;
     accessToken?: string;
   }
 }

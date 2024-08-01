@@ -4,20 +4,28 @@ import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-import { CustomUser } from '#/types';
 import jwt from 'jsonwebtoken';
+import { CustomUser } from '#/types';
 
 const prisma = new PrismaClient();
 
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
 
+const generateAccessToken = (user: any) => {
+  return jwt.sign(
+    { userId: user.id, email: user.email, role: user.role },
+    process.env.JWT_SECRET!,
+    { expiresIn: '1h' }
+  );
+};
+
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 30 * 24 * 60 * 60, // 30 days
+    maxAge: 60, // 30 days
   },
   providers: [
     GoogleProvider({
@@ -30,11 +38,11 @@ export const authOptions: NextAuthOptions = {
           email: profile.email,
           image: profile.picture,
           emailVerified: profile.email_verified ? new Date(profile.email_verified) : null,
-          password: '', 
+          password: '',
           role: 'user',
           archivedts: null,
           accessToken: '',
-        } as unknown as CustomUser;
+        } as CustomUser;
       },
     }),
     CredentialsProvider({
@@ -61,13 +69,13 @@ export const authOptions: NextAuthOptions = {
         }
 
         const isValid = await bcrypt.compare(credentials.password, user.password!);
-        
+
         if (!isValid) {
           await prisma.user.update({
             where: { email: credentials.email },
-            data: { 
+            data: {
               failedAttempts: { increment: 1 },
-              lockedUntil: user.failedAttempts + 1 >= MAX_LOGIN_ATTEMPTS ? 
+              lockedUntil: user.failedAttempts + 1 >= MAX_LOGIN_ATTEMPTS ?
                 new Date(Date.now() + LOCK_TIME) : null
             },
           });
@@ -80,11 +88,7 @@ export const authOptions: NextAuthOptions = {
           data: { failedAttempts: 0, lockedUntil: null },
         });
 
-        const accessToken = jwt.sign(
-          { userId: user.id, email: user.email },
-          process.env.JWT_SECRET!,
-          { expiresIn: '1h' }
-        );
+        const accessToken = generateAccessToken(user);
 
         return {
           id: user.id,
@@ -93,10 +97,9 @@ export const authOptions: NextAuthOptions = {
           image: user.image,
           emailVerified: user.emailVerified,
           accessToken: accessToken,
-          password: user.password,
           role: user.role,
           archivedts: user.archivedts,
-        } as unknown as CustomUser;
+        } as CustomUser;
       },
     }),
   ],
@@ -126,9 +129,7 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      // Allows relative callback URLs
       if (url.startsWith("/")) return `${baseUrl}${url}`;
-      // Allows callback URLs on the same origin
       else if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
@@ -137,14 +138,17 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/signin',
     verifyRequest: '/auth/verify-request',
     error: '/auth/error', // Error code passed in query string as ?error=
+    newUser: '/auth/get-started', // Custom "Get Started" page for new users
   },
   debug: process.env.NODE_ENV === 'development',
   events: {
-    async signIn(message) { /* custom signIn logic */ },
-    async signOut(message) { /* custom signOut logic */ },
-    async createUser(message) { /* custom createUser logic */ },
-    async linkAccount(message) { /* custom linkAccount logic */ },
-    async session(message) { /* custom session logic */ },
+    async createUser({ user }) {
+      // Custom logic for when a new user is created
+      await prisma.user.update({
+        where: { id: user.id },
+        data: { failedAttempts: 0, lockedUntil: null }
+      });
+    },
   },
   logger: {
     error(code, metadata) {

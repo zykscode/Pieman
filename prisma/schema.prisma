@@ -23,6 +23,8 @@ model User {
   sessions         Session[]
   archivedts       DateTime?
   wallet           Wallet?
+  failedAttempts   Int           @default(0)
+  lockedUntil      DateTime?
 
   @@map(name: "users")
 }
