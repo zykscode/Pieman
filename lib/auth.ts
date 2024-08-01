@@ -12,7 +12,7 @@ const prisma = new PrismaClient();
 const MAX_LOGIN_ATTEMPTS = 5;
 const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
 
-const generateAccessToken = (user: any) => {
+const generateAccessToken = (user: CustomUser) => {
   return jwt.sign(
     { userId: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET!,
@@ -88,7 +88,7 @@ export const authOptions: NextAuthOptions = {
           data: { failedAttempts: 0, lockedUntil: null },
         });
 
-        const accessToken = generateAccessToken(user);
+        const accessToken = generateAccessToken(user as CustomUser);
 
         return {
           id: user.id,
