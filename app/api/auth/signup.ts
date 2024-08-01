@@ -1,9 +1,9 @@
-// pages/api/auth/signup.ts
 import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { setCookie } from 'cookies-next';
 import { signIn } from 'next-auth/react';
+import { CustomSignInResponse } from '#/types';
 
 const prisma = new PrismaClient();
 
@@ -28,7 +28,7 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       redirect: false,
       email,
       password,
-    });
+    }) as CustomSignInResponse | undefined;
 
     if (token?.ok) {
       setCookie('auth-token', token.accessToken!, {

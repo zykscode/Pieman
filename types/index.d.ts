@@ -1,5 +1,7 @@
 import { User } from "@prisma/client"
 import type { Icon } from "lucide-react"
+import { SignInResponse } from 'next-auth/react';
+
 
 import { Icons } from "@/components/icons"
 import { IconType } from "react-icons"
@@ -25,7 +27,11 @@ export interface PaymentArgs {
   metadata: string;
   uid: string;
 }
-
+export 
+interface CustomSignInResponse extends SignInResponse {
+  accessToken?: string;
+  error: string | null;
+}
 
 export type AuthResult = {
   accessToken: string,
