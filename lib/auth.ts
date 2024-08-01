@@ -5,14 +5,19 @@ import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { CustomUser } from '#/types';
+import jwt from 'jsonwebtoken';
 
 const prisma = new PrismaClient();
+
+const MAX_LOGIN_ATTEMPTS = 5;
+const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
 
 export const authOptions: NextAuthOptions = {
   adapter: PrismaAdapter(prisma),
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
     GoogleProvider({
@@ -25,7 +30,11 @@ export const authOptions: NextAuthOptions = {
           email: profile.email,
           image: profile.picture,
           emailVerified: profile.email_verified ? new Date(profile.email_verified) : null,
-        };
+          password: '', 
+          role: 'user',
+          archivedts: null,
+          accessToken: '',
+        } as unknown as CustomUser;
       },
     }),
     CredentialsProvider({
@@ -36,43 +45,58 @@ export const authOptions: NextAuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          return null;
+          throw new Error('Invalid credentials');
         }
 
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         });
 
-        if (user) {
-          const isValid = await bcrypt.compare(credentials.password, user.password!);
-          if (!isValid) {
-            return null;
-          }
-          return {
-            id: user.id,
-            name: user.name,
-            email: user.email,
-            image: user.image,
-            emailVerified: user.emailVerified,
-            accessToken: 'your_access_token_here', // Add your logic to generate an access token
-          } as CustomUser;
-        } else {
-          const hashedPassword = await bcrypt.hash(credentials.password, 10);
-          const newUser = await prisma.user.create({
-            data: {
-              email: credentials.email,
-              password: hashedPassword,
+        if (!user) {
+          throw new Error('User not found');
+        }
+
+        if (user.lockedUntil && user.lockedUntil > new Date()) {
+          throw new Error('Account is locked. Please try again later.');
+        }
+
+        const isValid = await bcrypt.compare(credentials.password, user.password!);
+        
+        if (!isValid) {
+          await prisma.user.update({
+            where: { email: credentials.email },
+            data: { 
+              failedAttempts: { increment: 1 },
+              lockedUntil: user.failedAttempts + 1 >= MAX_LOGIN_ATTEMPTS ? 
+                new Date(Date.now() + LOCK_TIME) : null
             },
           });
-          return {
-            id: newUser.id,
-            name: newUser.name,
-            email: newUser.email,
-            image: newUser.image,
-            emailVerified: newUser.emailVerified,
-            accessToken: 'your_access_token_here', // Add your logic to generate an access token
-          } as CustomUser;
+          throw new Error('Invalid password');
         }
+
+        // Reset failed attempts on successful login
+        await prisma.user.update({
+          where: { email: credentials.email },
+          data: { failedAttempts: 0, lockedUntil: null },
+        });
+
+        const accessToken = jwt.sign(
+          { userId: user.id, email: user.email },
+          process.env.JWT_SECRET!,
+          { expiresIn: '1h' }
+        );
+
+        return {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          image: user.image,
+          emailVerified: user.emailVerified,
+          accessToken: accessToken,
+          password: user.password,
+          role: user.role,
+          archivedts: user.archivedts,
+        } as unknown as CustomUser;
       },
     }),
   ],
@@ -85,7 +109,8 @@ export const authOptions: NextAuthOptions = {
         token.email = customUser.email;
         token.picture = customUser.image;
         token.emailVerified = customUser.emailVerified;
-        token.accessToken = customUser.accessToken; // Add access token to JWT
+        token.accessToken = customUser.accessToken;
+        token.role = customUser.role;
       }
       return token;
     },
@@ -95,12 +120,43 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture as string | null;
-        session.accessToken = token.accessToken; // Add access token to session
+        session.accessToken = token.accessToken as string;
+        session.user.role = token.role as string;
       }
       return session;
     },
+    async redirect({ url, baseUrl }) {
+      // Allows relative callback URLs
+      if (url.startsWith("/")) return `${baseUrl}${url}`;
+      // Allows callback URLs on the same origin
+      else if (new URL(url).origin === baseUrl) return url;
+      return baseUrl;
+    },
+  },
+  pages: {
+    signIn: '/auth/signin',
+    verifyRequest: '/auth/verify-request',
+    error: '/auth/error', // Error code passed in query string as ?error=
   },
   debug: process.env.NODE_ENV === 'development',
+  events: {
+    async signIn(message) { /* custom signIn logic */ },
+    async signOut(message) { /* custom signOut logic */ },
+    async createUser(message) { /* custom createUser logic */ },
+    async linkAccount(message) { /* custom linkAccount logic */ },
+    async session(message) { /* custom session logic */ },
+  },
+  logger: {
+    error(code, metadata) {
+      console.error(code, metadata);
+    },
+    warn(code) {
+      console.warn(code);
+    },
+    debug(code, metadata) {
+      console.debug(code, metadata);
+    },
+  },
 };
 
 export default NextAuth(authOptions);

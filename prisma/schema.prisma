@@ -21,6 +21,7 @@ model User {
   soldTransactions Transaction[] @relation("TransactionSeller")
   accounts         Account[]
   sessions         Session[]
+  archivedts       DateTime?
   wallet           Wallet?
 
   @@map(name: "users")

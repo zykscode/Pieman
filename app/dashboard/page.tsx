@@ -1,5 +1,6 @@
 'use client';
 
+import { Button } from '#/components/ui/button';
 import { signOut, useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
 
@@ -16,13 +17,14 @@ export default function Dashboard() {
   }
 
   return (
-    <div>
+    <div className='flex flex-col  bg-red-600'>
       <h1>Welcome, {session?.user?.name || 'User'}</h1>
       {/* Dashboard content */}
+      <Button className=' bg-yellow-200' onClick={()=> signOut({callbackUrl:'/'})}
+      >
+        Sign out   </Button>
 
-      <button className='ye bg-yellow-200' onClick={()=> signOut({callbackUrl:'/'})}>
-
-      </button>
+    
     </div>
   );
 }

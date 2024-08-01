@@ -41,10 +41,18 @@ export type User = AuthResult['user'];
 // types.ts
 import { User } from 'next-auth';
 
-export interface CustomUser extends User {
+export interface CustomUser {
   id: string;
+  name: string | null;
+  email: string;
+  image: string | null;
   emailVerified: Date | null;
+  accessToken: string;
+  password: string;
+  role: string;
+  archivedts: Date | null;
 }
+
 
 declare module 'cookies-next' {
   export function setCookie(key: string, value: string, options?: any): void;
