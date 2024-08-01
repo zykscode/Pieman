@@ -13,7 +13,6 @@ module.exports = {
     'prettier',
     'unused-imports',
     'simple-import-sort',
-    'no-console',
     'tailwindcss',
   ],
   extends: [
