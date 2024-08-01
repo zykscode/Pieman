@@ -7,7 +7,7 @@ type Props = {}
 
 const Header = (props: Props) => {
   return (
-    <div className=' sticky bg-red-500 w-full h-16 flex justify-between p-4 '>
+    <div className=' sticky top-0 bg-red-500 w-full h-16 flex justify-between p-4 '>
         <PageLogo/>
         <Link href={'/dashboard'}>
         <RxAvatar className='size-full'/>

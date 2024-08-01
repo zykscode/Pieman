@@ -8,7 +8,7 @@ export default function Dashboard() {
   const { data: session, status } = useSession({
     required: true,
     onUnauthenticated() {
-      redirect('/login');
+      redirect('/auth/signin');
     },
   });
 

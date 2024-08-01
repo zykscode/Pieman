@@ -1,8 +1,9 @@
 'use client'
 
 import { useSession, signIn } from 'next-auth/react';
+import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { useRouter } from 'next/router';
+
 
 const GetStarted = () => {
   const { data: session, status } = useSession();
