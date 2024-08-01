@@ -38,8 +38,19 @@ export type AuthResult = {
 export type User = AuthResult['user'];
 
 
+// types.ts
+import { User } from 'next-auth';
+
 export interface CustomUser extends User {
+  id: string;
   emailVerified: Date | null;
+}
+
+declare module 'cookies-next' {
+  export function setCookie(key: string, value: string, options?: any): void;
+  export function getCookie(key: string): string | undefined;
+  export function deleteCookie(key: string): void;
+  // Add other functions as needed
 }
 
 export 

@@ -6,7 +6,6 @@ import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { CustomUser } from '#/types';
 
-
 const prisma = new PrismaClient();
 
 export const authOptions: NextAuthOptions = {
@@ -55,6 +54,7 @@ export const authOptions: NextAuthOptions = {
             email: user.email,
             image: user.image,
             emailVerified: user.emailVerified,
+            accessToken: 'your_access_token_here', // Add your logic to generate an access token
           } as CustomUser;
         } else {
           const hashedPassword = await bcrypt.hash(credentials.password, 10);
@@ -70,6 +70,7 @@ export const authOptions: NextAuthOptions = {
             email: newUser.email,
             image: newUser.image,
             emailVerified: newUser.emailVerified,
+            accessToken: 'your_access_token_here', // Add your logic to generate an access token
           } as CustomUser;
         }
       },
@@ -84,17 +85,7 @@ export const authOptions: NextAuthOptions = {
         token.email = customUser.email;
         token.picture = customUser.image;
         token.emailVerified = customUser.emailVerified;
-      } else if (token.email) {
-        const dbUser = await prisma.user.findUnique({
-          where: { email: token.email },
-        });
-        if (dbUser) {
-          token.id = dbUser.id;
-          token.name = dbUser.name;
-          token.email = dbUser.email;
-          token.picture = dbUser.image;
-          token.emailVerified = dbUser.emailVerified;
-        }
+        token.accessToken = customUser.accessToken; // Add access token to JWT
       }
       return token;
     },
@@ -104,13 +95,12 @@ export const authOptions: NextAuthOptions = {
         session.user.name = token.name;
         session.user.email = token.email;
         session.user.image = token.picture as string | null;
-      //   session.user.emailVerified = token.emailVerified as Date | null;
+        session.accessToken = token.accessToken; // Add access token to session
       }
       return session;
     },
   },
   debug: process.env.NODE_ENV === 'development',
 };
-
 
 export default NextAuth(authOptions);

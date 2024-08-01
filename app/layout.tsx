@@ -37,7 +37,7 @@ export default function RootLayout({
           <ThemeProvider attribute="class" defaultTheme="light">
               <Header />
            <PageHeader />   
-           <main className="flex-grow px-4 bg-red-200 ">{children}</main>      
+           <main className="flex-grow flex flex-col px-4 bg-red-300 ">{children}</main>      
             <Toaster />
             <Analytics />
             <TailwindIndicator />
