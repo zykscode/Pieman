@@ -1,9 +1,11 @@
-'use client'
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable react/button-has-type */
 
-import { useSession, signIn } from 'next-auth/react';
+'use client';
+
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
 import { useEffect } from 'react';
-
 
 const GetStarted = () => {
   const { data: session, status } = useSession();

@@ -1,11 +1,15 @@
-import { NextRequest, NextResponse } from 'next/server';
 import axios from 'axios';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
 export async function GET(req: NextRequest) {
   const accessToken = req.headers.get('Authorization')?.split(' ')[1];
 
   if (!accessToken) {
-    return NextResponse.json({ error: 'Access token is required' }, { status: 400 });
+    return NextResponse.json(
+      { error: 'Access token is required' },
+      { status: 400 },
+    );
   }
 
   try {
@@ -15,6 +19,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.json(response.data);
   } catch (error) {
     console.error('Authentication error:', error);
-    return NextResponse.json({ error: 'Authentication failed' }, { status: 401 });
+    return NextResponse.json(
+      { error: 'Authentication failed' },
+      { status: 401 },
+    );
   }
 }

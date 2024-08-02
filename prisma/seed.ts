@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
@@ -27,7 +28,7 @@ async function main() {
       emailVerified: new Date(),
     },
   });
-  
+
   const user2 = await prisma.user.create({
     data: {
       name: 'Jane Smith',
@@ -37,7 +38,7 @@ async function main() {
       emailVerified: new Date(),
     },
   });
-  
+
   const admin = await prisma.user.create({
     data: {
       name: 'Admin User',
@@ -90,7 +91,15 @@ async function main() {
     },
   });
 
-  console.log({ user1, user2, admin, transaction1, transaction2, rating1, rating2 });
+  console.log({
+    user1,
+    user2,
+    admin,
+    transaction1,
+    transaction2,
+    rating1,
+    rating2,
+  });
 }
 
 main()

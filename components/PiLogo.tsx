@@ -1,4 +1,6 @@
-const SVGComponent = (props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) => (
+const SVGComponent = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>,
+) => (
   <svg
     viewBox="176.20000000000005 47.4 530.8 530.7"
     xmlns="http://www.w3.org/2000/svg"

@@ -1,6 +1,5 @@
 // next-auth.d.ts
-import { DefaultSession, DefaultUser } from 'next-auth';
-import { JWT as NextAuthJWT } from 'next-auth/jwt';
+import type { DefaultUser } from 'next-auth';
 
 type UserId = string;
 

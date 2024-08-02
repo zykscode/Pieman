@@ -1,14 +1,21 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable unused-imports/no-unused-vars */
+/* eslint-disable unused-imports/no-unused-vars-ts */
 // pages/api/verify-auth.ts
-import type { NextApiRequest, NextApiResponse } from 'next';
-import axios from 'axios';
 import { env } from 'node:process';
 
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+import axios from 'axios';
+import type { NextApiRequest, NextApiResponse } from 'next';
+
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method === 'POST') {
     const { accessToken } = req.body;
     try {
       const response = await axios.get('https://api.minepi.com/v2/me', {
-        headers: { 'Authorization': `Bearer ${env.PI_API_KEY}` }
+        headers: { Authorization: `Bearer ${env.PI_API_KEY}` },
       });
       res.status(200).json(response.data);
     } catch (error) {

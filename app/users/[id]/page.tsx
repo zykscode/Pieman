@@ -1,11 +1,9 @@
-import React from 'react'
+import React from 'react';
 
-type Props = {params:{id:string}}
+type Props = { params: { id: string } };
 
-const IdPage = ({params}: Props) => {
-  return (
-    <div>IdPage:{params.id}</div>
-  )
-}
+const IdPage = ({ params }: Props) => {
+  return <div>IdPage:{params.id}</div>;
+};
 
-export default IdPage
+export default IdPage;

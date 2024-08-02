@@ -1,23 +1,27 @@
-"use client"
+'use client';
 
-import * as React from "react"
-import Link from "next/link"
-import { useSelectedLayoutSegment } from "next/navigation"
-import { MainNavItem } from "../types"
-import { siteConfig } from "../config/site"
-import { cn } from "../lib/utils"
-import { MobileNav } from "./mobile-nav"
-import { Icons } from "./icons"
+/* eslint-disable react/button-has-type */
+/* eslint-disable react/jsx-pascal-case */
+/* eslint-disable jsx-a11y/anchor-is-valid */
 
+import Link from 'next/link';
+import { useSelectedLayoutSegment } from 'next/navigation';
+import * as React from 'react';
+
+import { siteConfig } from '../config/site';
+import { cn } from '../lib/utils';
+import type { MainNavItem } from '../types';
+import { Icons } from './icons';
+import { MobileNav } from './mobile-nav';
 
 interface MainNavProps {
-  items?: MainNavItem[]
-  children?: React.ReactNode
+  items?: MainNavItem[];
+  children?: React.ReactNode;
 }
 
 export function MainNav({ items, children }: MainNavProps) {
-  const segment = useSelectedLayoutSegment()
-  const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false)
+  const segment = useSelectedLayoutSegment();
+  const [showMobileMenu, setShowMobileMenu] = React.useState<boolean>(false);
 
   return (
     <div className="flex gap-6 md:gap-10">
@@ -31,14 +35,15 @@ export function MainNav({ items, children }: MainNavProps) {
         <nav className="hidden gap-6 md:flex">
           {items?.map((item, index) => (
             <Link
+              // eslint-disable-next-line react/no-array-index-key
               key={index}
-              href={item.disabled ? "#" : item.href}
+              href={item.disabled ? '#' : item.href}
               className={cn(
-                "flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm",
+                'flex items-center text-lg font-medium transition-colors hover:text-foreground/80 sm:text-sm',
                 item.href.startsWith(`/${segment}`)
-                  ? "text-foreground"
-                  : "text-foreground/60",
-                item.disabled && "cursor-not-allowed opacity-80"
+                  ? 'text-foreground'
+                  : 'text-foreground/60',
+                item.disabled && 'cursor-not-allowed opacity-80',
               )}
             >
               {item.title}
@@ -57,5 +62,5 @@ export function MainNav({ items, children }: MainNavProps) {
         <MobileNav items={items}>{children}</MobileNav>
       )}
     </div>
-  )
+  );
 }

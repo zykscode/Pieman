@@ -1,17 +1,20 @@
 'use client';
 
-
 // app/hooks/usePiNetwork.ts
 
-import { AuthResult, PaymentDTO } from '#/types';
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+
+import type { AuthResult, PaymentDTO } from '#/types';
 
 declare global {
   interface Window {
     Pi?: {
-      init: (config: { version: string, sandbox?: boolean }) => void;
-      authenticate: (scopes: string[], onIncompletePaymentFound: (payment: PaymentDTO) => void) => Promise<AuthResult>;
-      createPayment: (paymentData: any, callbacks: any) => void;
+      init: (config: { version: string; sandbox?: boolean }) => void;
+      authenticate: (
+        scopes: string[],
+        onIncompletePaymentFound: (payment: PaymentDTO) => void,
+      ) => Promise<AuthResult>;
+      createPayment: (paymentData: unknown, callbacks: unknown) => void;
     };
   }
 }
@@ -24,7 +27,7 @@ export function usePiNetwork(sandbox: boolean = false) {
     script.src = 'https://sdk.minepi.com/pi-sdk.js';
     script.async = true;
     script.onload = () => {
-      window.Pi?.init({ version: "2.0", sandbox });
+      window.Pi?.init({ version: '2.0', sandbox });
       setPi(window.Pi);
     };
     document.body.appendChild(script);

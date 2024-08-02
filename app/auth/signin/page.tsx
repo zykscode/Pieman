@@ -1,10 +1,11 @@
 'use client';
+
 import { CreateAccountForm } from '#/components/create-account';
 
 const LoginPage = () => {
-   return (
+  return (
     <div>
-   <CreateAccountForm />
+      <CreateAccountForm />
     </div>
   );
 };

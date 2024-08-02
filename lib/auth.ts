@@ -1,11 +1,15 @@
-import NextAuth, { NextAuthOptions } from 'next-auth';
+/* eslint-disable no-param-reassign */
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
-import CredentialsProvider from 'next-auth/providers/credentials';
-import GoogleProvider from 'next-auth/providers/google';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
+// eslint-disable-next-line import/no-extraneous-dependencies
 import jwt from 'jsonwebtoken';
-import { CustomUser } from '#/types';
+import type { NextAuthOptions } from 'next-auth';
+import NextAuth from 'next-auth';
+import CredentialsProvider from 'next-auth/providers/credentials';
+import GoogleProvider from 'next-auth/providers/google';
+
+import type { CustomUser } from '#/types';
 
 const prisma = new PrismaClient();
 
@@ -16,7 +20,7 @@ const generateAccessToken = (user: CustomUser) => {
   return jwt.sign(
     { userId: user.id, email: user.email, role: user.role },
     process.env.JWT_SECRET!,
-    { expiresIn: '1h' }
+    { expiresIn: '1h' },
   );
 };
 
@@ -37,7 +41,9 @@ export const authOptions: NextAuthOptions = {
           name: profile.name,
           email: profile.email,
           image: profile.picture,
-          emailVerified: profile.email_verified ? new Date(profile.email_verified) : null,
+          emailVerified: profile.email_verified
+            ? new Date(profile.email_verified)
+            : null,
           password: '',
           role: 'user',
           archivedts: null,
@@ -68,15 +74,20 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Account is locked. Please try again later.');
         }
 
-        const isValid = await bcrypt.compare(credentials.password, user.password!);
+        const isValid = await bcrypt.compare(
+          credentials.password,
+          user.password!,
+        );
 
         if (!isValid) {
           await prisma.user.update({
             where: { email: credentials.email },
             data: {
               failedAttempts: { increment: 1 },
-              lockedUntil: user.failedAttempts + 1 >= MAX_LOGIN_ATTEMPTS ?
-                new Date(Date.now() + LOCK_TIME) : null
+              lockedUntil:
+                user.failedAttempts + 1 >= MAX_LOGIN_ATTEMPTS
+                  ? new Date(Date.now() + LOCK_TIME)
+                  : null,
             },
           });
           throw new Error('Invalid password');
@@ -96,7 +107,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           image: user.image,
           emailVerified: user.emailVerified,
-          accessToken: accessToken,
+          accessToken,
           role: user.role,
           archivedts: user.archivedts,
         } as CustomUser;
@@ -129,8 +140,8 @@ export const authOptions: NextAuthOptions = {
       return session;
     },
     async redirect({ url, baseUrl }) {
-      if (url.startsWith("/")) return `${baseUrl}${url}`;
-      else if (new URL(url).origin === baseUrl) return url;
+      if (url.startsWith('/')) return `${baseUrl}${url}`;
+      if (new URL(url).origin === baseUrl) return url;
       return baseUrl;
     },
   },
@@ -146,7 +157,7 @@ export const authOptions: NextAuthOptions = {
       // Custom logic for when a new user is created
       await prisma.user.update({
         where: { id: user.id },
-        data: { failedAttempts: 0, lockedUntil: null }
+        data: { failedAttempts: 0, lockedUntil: null },
       });
     },
   },

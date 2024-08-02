@@ -1,5 +1,7 @@
-import { AxiosClientOptions } from '#/types';
-import axios, { AxiosInstance } from 'axios';
+import type { AxiosInstance } from 'axios';
+import axios from 'axios';
+
+import type { AxiosClientOptions } from '#/types';
 
 const axiosClient = axios.create({
   baseURL: process.env.PI_API_KEY || '/api',
@@ -7,16 +9,18 @@ const axiosClient = axios.create({
   withCredentials: true,
   headers: {
     'Content-Type': 'application/json',
-    'Access-Control-Allow-Origin': '*'
-  }
+    'Access-Control-Allow-Origin': '*',
+  },
 });
 
 export default axiosClient;
 
-
-export const getAxiosClient = (apiKey: string, options: AxiosClientOptions | null): AxiosInstance => {
+export const getAxiosClient = (
+  apiKey: string,
+  options: AxiosClientOptions | null,
+): AxiosInstance => {
   return axios.create({
-    baseURL: options?.baseURL || "https://api.yourdomain.com",
+    baseURL: options?.baseURL || 'https://api.yourdomain.com',
     timeout: options?.timeout || 10000,
     headers: {
       ...options?.headers,

@@ -1,21 +1,22 @@
-import { siteConfig } from '../config/site'
-import { ModeToggle } from './mode-toggle'
-import styles from './styles.module.css'
-import { FaGithub, FaTwitter, FaYoutube } from 'react-icons/fa'
+/* eslint-disable jsx-a11y/control-has-associated-label */
+import { FaGithub, FaTwitter, FaYoutube } from 'react-icons/fa';
 
-type Props = {}
+import { siteConfig } from '../config/site';
+import { ModeToggle } from './mode-toggle';
+import styles from './styles.module.css';
 
-function PageFooter({}: Props) {
-  const { twitter, github, youtube } = siteConfig.links
+function PageFooter() {
+  const { twitter, github, youtube } = siteConfig.links;
 
   return (
-    <footer className={ ` hidden md:flex ${styles.footer}`}>
+    <footer className={` hidden md:flex ${styles.footer}`}>
       <div className={styles.copyright}>copyright 2024 zyk</div>
       <div className={styles.settings}>
         <ModeToggle />
       </div>
       <div className={styles.social}>
         {twitter && (
+          // eslint-disable-next-line jsx-a11y/control-has-associated-label
           <a
             className={styles.twitter}
             href={`https://twitter.com/${twitter}`}
@@ -43,7 +44,7 @@ function PageFooter({}: Props) {
           <a
             className={styles.youtube}
             href={`https://www.youtube.com/${youtube}`}
-            title={`YouTube middle ma`}
+            title="YouTube middle ma"
             target="_blank"
             rel="noopener noreferrer"
           >
@@ -52,7 +53,7 @@ function PageFooter({}: Props) {
         )}
       </div>
     </footer>
-  )
+  );
 }
 
-export default PageFooter
+export default PageFooter;

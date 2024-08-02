@@ -1,9 +1,13 @@
 'use client';
 
-import React, { useState } from 'react';
-import { usePiNetwork } from '#/hooks/usePiNetwork';
-import { useToast } from '#/components/ui/use-toast';
+/* eslint-disable react/button-has-type */
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import axios from 'axios';
+import React from 'react';
+
+import { useToast } from '#/components/ui/use-toast';
+import { usePiNetwork } from '#/hooks/usePiNetwork';
 
 export interface AuthResult {
   accessToken: string;
@@ -14,9 +18,47 @@ export interface AuthResult {
   };
 }
 
-const PiAuth = ({setAuthInfo, authInfo}:{setAuthInfo:any, authInfo:any}) => {
+const PiAuth = ({
+  setAuthInfo,
+  authInfo,
+}: {
+  setAuthInfo: any;
+  authInfo: any;
+}) => {
   const { toast } = useToast();
   const Pi = usePiNetwork(process.env.NODE_ENV !== 'production');
+
+  const handleAuthenticationError = (error: any, defaultMessage: string) => {
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred';
+    toast({
+      variant: 'destructive',
+      title: defaultMessage,
+      description: errorMessage,
+    });
+  };
+
+  const verifyAuthenticationWithServer = async (accessToken: string) => {
+    try {
+      const response = await axios.get('https://api.minepi.com/v2/me', {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const verifiedUser = await response.data;
+      toast({
+        variant: 'default',
+        title: 'Server verified user',
+        description: `User ${verifiedUser.username} has been verified by the server.`,
+      });
+
+      setAuthInfo(verifiedUser);
+    } catch (error) {
+      handleAuthenticationError(error, 'Server verification error');
+      setAuthInfo(null);
+    }
+  };
 
   const authenticate = async () => {
     if (!Pi) return;
@@ -47,39 +89,8 @@ const PiAuth = ({setAuthInfo, authInfo}:{setAuthInfo:any, authInfo:any}) => {
     }
   };
 
-  const verifyAuthenticationWithServer = async (accessToken: string) => {
-    try {
-      const response = await axios.get('https://api.minepi.com/v2/me', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
-      });
-
-  const verifiedUser = await response.data;
-  toast({
-    variant: 'default',
-    title: 'Server verified user',
-    description: `User ${verifiedUser.username} has been verified by the server.`,
-  });
-
-  setAuthInfo(verifiedUser)
-} catch (error) {
-      handleAuthenticationError(error, 'Server verification error');
-      setAuthInfo(null);
-    }
-  };
-
-  const handleAuthenticationError = (error: any, defaultMessage: string) => {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    toast({
-      variant: 'destructive',
-      title: defaultMessage,
-      description: errorMessage,
-    });
-  };
-
   return (
-    <div className='bg-yellow-800 w-full'>
+    <div className="w-full bg-yellow-800">
       {!authInfo ? (
         <button onClick={authenticate}>Authenticate with Pi Network</button>
       ) : (

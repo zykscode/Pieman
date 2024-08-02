@@ -1,5 +1,7 @@
-import { useUser } from '#/contexts/UserContext';
+/* eslint-disable react/button-has-type */
 import React from 'react';
+
+import { useUser } from '#/contexts/UserContext';
 
 const Header: React.FC = () => {
   const { user, signIn, signOut } = useUser();
@@ -9,7 +11,7 @@ const Header: React.FC = () => {
       <h1>Shop</h1>
       {user ? (
         <div>
-          <span>Welcome, {user.username}</span>
+          <span>Welcome, {user.name}</span>
           <button onClick={signOut}>Sign Out</button>
         </div>
       ) : (

@@ -1,10 +1,14 @@
 'use client';
 
+/* eslint-disable @typescript-eslint/naming-convention */
+/* eslint-disable unused-imports/no-unused-vars */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable react/button-has-type */
+
+import type PiNetwork from 'pi-backend'; // Import PiNetwork and PaymentDTO
 import React, { useState } from 'react';
-import axios from 'axios';
+
 import { useToast } from '#/components/ui/use-toast';
-import PiNetwork from 'pi-backend'; // Import PiNetwork and PaymentDTO
-import { PaymentDTO } from '#/types';
 
 interface PaymentComponentProps {
   userInfo: {
@@ -15,13 +19,16 @@ interface PaymentComponentProps {
   piInstance: PiNetwork;
 }
 
-const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo, piInstance }) => {
+const PaymentComponent: React.FC<PaymentComponentProps> = ({
+  userInfo,
+  piInstance,
+}) => {
   const { toast } = useToast();
   const buyerId = userInfo.uid!;
-  const [sellerId, setSellerId] = useState<string>('');
+  const [sellerId, _setSellerId] = useState<string>('');
   const [piAmount, setPiAmount] = useState<number>(0);
-  const [nairaAmount, setNairaAmount] = useState<number>(0);
-  const [rate, setRate] = useState<number>(0);
+  const [nairaAmount, _blanksetNairaAmount] = useState<number>(0);
+  const [rate, _setRate] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [txid, setTxid] = useState<string | null>(null);
@@ -35,15 +42,16 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo, piInstanc
         uid: buyerId,
       };
 
-      const paymentId = await piInstance.createPayment(paymentData);
-      setPaymentId(paymentId);
+      const paymentIdhere = await piInstance.createPayment(paymentData);
+      setPaymentId(paymentIdhere);
       toast({
         variant: 'default',
         title: 'Payment Created',
         description: `Payment ID: ${paymentId}`,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         variant: 'destructive',
         title: 'Failed to create payment',
@@ -54,15 +62,16 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo, piInstanc
 
   const handleSubmitPayment = async () => {
     try {
-      const txid = await piInstance.submitPayment(paymentId!);
-      setTxid(txid);
+      const txidhere = await piInstance.submitPayment(paymentId!);
+      setTxid(txidhere);
       toast({
         variant: 'default',
         title: 'Payment Submitted',
         description: `Transaction ID: ${txid}`,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         variant: 'destructive',
         title: 'Failed to submit payment',
@@ -73,14 +82,18 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo, piInstanc
 
   const handleCompletePayment = async () => {
     try {
-      const completedPayment: PaymentDTO = await piInstance.completePayment(paymentId!, txid!);
+      const completedPayment = await piInstance.completePayment(
+        paymentId!,
+        txid!,
+      );
       toast({
         variant: 'default',
         title: 'Payment Completed',
         description: `Payment: ${completedPayment.identifier}`,
       });
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
+      const errorMessage =
+        error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         variant: 'destructive',
         title: 'Failed to complete payment',
@@ -88,8 +101,6 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo, piInstanc
       });
     }
   };
-
-  console.log(buyerId,userInfo)
 
   return (
     <div>

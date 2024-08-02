@@ -1,11 +1,10 @@
-'use client'; 
+'use client';
+
+import React, { useEffect, useState } from 'react';
 
 import FirstTimeVisitor from '#/components/first-time-visitor';
-import React, { useEffect, useState } from 'react'
 
-type Props = {}
-
-const Page = (props: Props) => {
+const Page = () => {
   const [isFirstTimeVisitor, setIsFirstTimeVisitor] = useState(false);
 
   useEffect(() => {
@@ -16,13 +15,12 @@ const Page = (props: Props) => {
     }
   }, []);
   return (
-    <div className='flex-grow flex flex-col bg-green-500'>
+    <div className="flex grow flex-col bg-green-500">
       {isFirstTimeVisitor ? (
         <div className="flex flex-col">
-        <FirstTimeVisitor />
-        <div className="h min-h-screen bg-yellow-200">
-          hdhd
-        </div></div>
+          <FirstTimeVisitor />
+          <div className="h min-h-screen bg-yellow-200">hdhd</div>
+        </div>
       ) : (
         <div>
           <h1>Welcome back!</h1>
@@ -30,7 +28,7 @@ const Page = (props: Props) => {
         </div>
       )}
     </div>
-  )
-}
+  );
+};
 
-export default Page
+export default Page;

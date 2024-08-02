@@ -1,35 +1,45 @@
+/* eslint-disable tailwindcss/migration-from-tailwind-2 */
+/* eslint-disable react/no-unescaped-entities */
+
 'use client';
 
-import { useState } from 'react';
+import Image from 'next/image';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
-import Link from "next/link"
-import Image from "next/image"
+import { useState } from 'react';
+
 import { Button } from './ui/button';
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from './ui/card';
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from './ui/card';
 import { Input } from './ui/input';
-import { useToast } from './ui/use-toast';
 import { Separator } from './ui/separator';
+import { useToast } from './ui/use-toast';
 
 export function CreateAccountForm() {
   const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const { toast } = useToast()
+  const { toast } = useToast();
 
   const handleCreateAccount = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       // Simulated API call to create account
       // await createAccount(email, password);
-      
+
       // Sign in after account creation
       const result = await signIn('credentials', {
         redirect: false,
         email,
         password,
       });
-      
+
       if (result?.ok) {
         router.push('/home');
       } else {
@@ -38,50 +48,59 @@ export function CreateAccountForm() {
     } catch (error) {
       console.error('Error creating account:', error);
       toast({
-        title: "Error",
-        description: "Failed to create account. Please try again.",
-        variant: "destructive",
-      })
+        title: 'Error',
+        description: 'Failed to create account. Please try again.',
+        variant: 'destructive',
+      });
     }
   };
 
   return (
     <div className="flex min-h-screen bg-black text-white">
       {/* Left side with image and quote */}
-      <div className="hidden lg:flex lg:w-1/2 relative">
+      <div className="relative hidden lg:flex lg:w-1/2">
         <Image
           src="/path-to-your-image.jpg"
           alt="Geometric structure"
           layout="fill"
           objectFit="cover"
         />
-        <div className="absolute bottom-10 left-10 right-10 p-6 bg-black bg-opacity-70">
-          <p className="text-lg mb-2">
-            "This library has saved me countless hours of work and helped me deliver stunning designs to my clients faster than ever before. Highly recommended!"
+        <div className="absolute inset-x-10 bottom-10 bg-black bg-opacity-70 p-6">
+          <p className="mb-2 text-lg">
+            "This library has saved me countless hours of work and helped me
+            deliver stunning designs to my clients faster than ever before.
+            Highly recommended!"
           </p>
           <p className="font-semibold">Sofia Davis</p>
         </div>
       </div>
 
       {/* Right side with form */}
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8">
+      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
         <Card className="w-full max-w-md bg-gray-900 text-white">
           <CardHeader>
-            <div className="flex justify-between items-center mb-4">
+            <div className="mb-4 flex items-center justify-between">
               <span className="text-2xl font-bold">Acme Inc</span>
-              <Link href="/login" className="text-sm text-gray-400 hover:text-white">
+              <Link
+                href="/login"
+                className="text-sm text-gray-400 hover:text-white"
+              >
                 Login
               </Link>
             </div>
-            <CardTitle className="text-2xl font-bold">Create an account</CardTitle>
-            <CardDescription>Enter your email below to create your account</CardDescription>
+            <CardTitle className="text-2xl font-bold">
+              Create an account
+            </CardTitle>
+            <CardDescription>
+              Enter your email below to create your account
+            </CardDescription>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleCreateAccount}>
               <Input
                 type="email"
                 placeholder="name@example.com"
-                className="mb-4 bg-gray-800 border-gray-700"
+                className="mb-4 border-gray-700 bg-gray-800"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -89,12 +108,14 @@ export function CreateAccountForm() {
               <Input
                 type="password"
                 placeholder="Password"
-                className="mb-4 bg-gray-800 border-gray-700"
+                className="mb-4 border-gray-700 bg-gray-800"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
               />
-              <Button type="submit" className="w-full mb-4">Create Account</Button>
+              <Button type="submit" className="mb-4 w-full">
+                Create Account
+              </Button>
               <div className="relative mb-4">
                 <Separator className="my-4" />
                 <div className="absolute inset-0 flex items-center justify-center">
@@ -103,9 +124,13 @@ export function CreateAccountForm() {
                   </span>
                 </div>
               </div>
-              <Button variant="outline" className="w-full" onClick={() => signIn('github')}>
+              <Button
+                variant="outline"
+                className="w-full"
+                onClick={() => signIn('github')}
+              >
                 <svg
-                  className="mr-2 h-4 w-4"
+                  className="mr-2 size-4"
                   aria-hidden="true"
                   fill="currentColor"
                   viewBox="0 0 24 24"
@@ -115,12 +140,12 @@ export function CreateAccountForm() {
                 Github
               </Button>
             </form>
-            <p className="text-xs text-gray-500 mt-4 text-center">
-              By clicking continue, you agree to our{" "}
+            <p className="mt-4 text-center text-xs text-gray-500">
+              By clicking continue, you agree to our{' '}
               <Link href="/terms" className="underline hover:text-white">
                 Terms of Service
-              </Link>{" "}
-              and{" "}
+              </Link>{' '}
+              and{' '}
               <Link href="/privacy" className="underline hover:text-white">
                 Privacy Policy
               </Link>
@@ -130,5 +155,5 @@ export function CreateAccountForm() {
         </Card>
       </div>
     </div>
-  )
+  );
 }

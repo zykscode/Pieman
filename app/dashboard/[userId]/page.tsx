@@ -1,10 +1,15 @@
 // app/dashboard/[userId]/page.tsx
 
-import { authOptions } from '#/lib/auth';
-import { getServerSession } from 'next-auth/next';
 import { redirect } from 'next/navigation';
+import { getServerSession } from 'next-auth/next';
 
-export default async function UserDashboard({ params }: { params: { userId: string } }) {
+import { authOptions } from '#/lib/auth';
+
+export default async function UserDashboard({
+  params,
+}: {
+  params: { userId: string };
+}) {
   const session = await getServerSession(authOptions);
 
   if (!session || session.user.id !== params.userId) {

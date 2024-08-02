@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react/button-has-type */
 // PiPayment.tsx
 
+import type PiNetwork from 'pi-backend';
 import React, { useState } from 'react';
-import PiNetwork from 'pi-backend';
+
 import { useToast } from '#/components/ui/use-toast';
 
 export interface PiPaymentProps {
@@ -14,36 +17,14 @@ const PiPayment: React.FC<PiPaymentProps> = ({ userUid, piInstance }) => {
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [txid, setTxid] = useState<string | null>(null);
 
-  const handleCreatePayment = async () => {
-    if (!piInstance) {
-      toast({
-        variant: 'destructive',
-        title: 'PiNetwork instance not available',
-        description: 'Authentication with Pi Network is required.',
-      });
-      return;
-    }
-
-    try {
-      // Create payment data
-      const paymentData = {
-        amount: 1, // Amount of Pi to send
-        memo: "Payment for goods/services", // Memo for the payment
-        metadata: { productId: "product_id" }, // Metadata for linking with business logic
-        uid: userUid, // User's unique ID in your application
-      };
-
-      // Create payment and store paymentId in state
-      const newPaymentId = await piInstance.createPayment(paymentData);
-      setPaymentId(newPaymentId);
-      toast({
-        variant: 'default',
-        title: 'Payment Created',
-        description: `Payment ID: ${newPaymentId}`,
-      });
-    } catch (error) {
-      handlePaymentError(error, 'Error creating payment');
-    }
+  const handlePaymentError = (error: any, defaultMessage: string) => {
+    const errorMessage =
+      error instanceof Error ? error.message : 'An unknown error occurred';
+    toast({
+      variant: 'destructive',
+      title: defaultMessage,
+      description: errorMessage,
+    });
   };
 
   const handleSubmitPayment = async () => {
@@ -82,7 +63,10 @@ const PiPayment: React.FC<PiPaymentProps> = ({ userUid, piInstance }) => {
 
     try {
       // Complete payment and handle response
-      const completedPayment = await piInstance.completePayment(paymentId, txid);
+      const completedPayment = await piInstance.completePayment(
+        paymentId,
+        txid,
+      );
       toast({
         variant: 'default',
         title: 'Payment Completed',
@@ -93,13 +77,36 @@ const PiPayment: React.FC<PiPaymentProps> = ({ userUid, piInstance }) => {
     }
   };
 
-  const handlePaymentError = (error: any, defaultMessage: string) => {
-    const errorMessage = error instanceof Error ? error.message : 'An unknown error occurred';
-    toast({
-      variant: 'destructive',
-      title: defaultMessage,
-      description: errorMessage,
-    });
+  const handleCreatePayment = async () => {
+    if (!piInstance) {
+      toast({
+        variant: 'destructive',
+        title: 'PiNetwork instance not available',
+        description: 'Authentication with Pi Network is required.',
+      });
+      return;
+    }
+
+    try {
+      // Create payment data
+      const paymentData = {
+        amount: 1, // Amount of Pi to send
+        memo: 'Payment for goods/services', // Memo for the payment
+        metadata: { productId: 'product_id' }, // Metadata for linking with business logic
+        uid: userUid, // User's unique ID in your application
+      };
+
+      // Create payment and store paymentId in state
+      const newPaymentId = await piInstance.createPayment(paymentData);
+      setPaymentId(newPaymentId);
+      toast({
+        variant: 'default',
+        title: 'Payment Created',
+        description: `Payment ID: ${newPaymentId}`,
+      });
+    } catch (error) {
+      handlePaymentError(error, 'Error creating payment');
+    }
   };
 
   return (

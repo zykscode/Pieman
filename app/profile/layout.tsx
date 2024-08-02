@@ -1,11 +1,14 @@
-import React from 'react'
+import type { ReactNode } from 'react';
+import React from 'react';
 
-type Props = {children:any}
+type Props = { children: ReactNode };
 
-const WalletLayout = ({children}:Props) => {
+const WalletLayout = ({ children }: Props) => {
   return (
-    <div className='flex flex-col h-full justify-center bg-green-300'>{children}</div>
-  )
-}
+    <div className="flex h-full flex-col justify-center bg-green-300">
+      {children}
+    </div>
+  );
+};
 
-export default WalletLayout
+export default WalletLayout;

@@ -1,18 +1,20 @@
 // app/api/createPayment/route.ts
 
-import { NextResponse } from 'next/server';
 import { PrismaClient } from '@prisma/client';
+import { NextResponse } from 'next/server';
+
 import pi from '#/utils/piNetwork';
 
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const { buyerId, sellerId, piAmount, nairaAmount, rate, description } = await req.json();
+  const { buyerId, sellerId, piAmount, nairaAmount, rate, description } =
+    await req.json();
 
   try {
     const paymentData = {
       amount: piAmount,
-      memo: description || "Payment for transaction",
+      memo: description || 'Payment for transaction',
       metadata: { nairaAmount, rate, sellerId },
       uid: buyerId,
     };
@@ -29,13 +31,16 @@ export async function POST(req: Request) {
         rate,
         description,
         status: 'PENDING',
-        paymentId:paymentId,
+        paymentId,
       },
     });
 
     return NextResponse.json({ paymentId, transaction });
   } catch (error) {
     console.error(error);
-    return NextResponse.json({ error: 'Failed to create payment' }, { status: 500 });
+    return NextResponse.json(
+      { error: 'Failed to create payment' },
+      { status: 500 },
+    );
   }
 }

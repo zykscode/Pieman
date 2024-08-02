@@ -1,5 +1,6 @@
-
-const Naira = (props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>) => (
+const Naira = (
+  props: React.JSX.IntrinsicAttributes & React.SVGProps<SVGSVGElement>,
+) => (
   <svg
     fill="#000000"
     id="Capa_1"

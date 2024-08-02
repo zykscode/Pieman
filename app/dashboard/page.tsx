@@ -1,8 +1,9 @@
 'use client';
 
-import { Button } from '#/components/ui/button';
-import { signOut, useSession } from 'next-auth/react';
 import { redirect } from 'next/navigation';
+import { signOut, useSession } from 'next-auth/react';
+
+import { Button } from '#/components/ui/button';
 
 export default function Dashboard() {
   const { data: session, status } = useSession({
@@ -17,14 +18,15 @@ export default function Dashboard() {
   }
 
   return (
-    <div className='flex flex-col  bg-red-600'>
+    <div className="flex flex-col  bg-red-600">
       <h1>Welcome, {session?.user?.name || 'User'}</h1>
       {/* Dashboard content */}
-      <Button className=' bg-yellow-200' onClick={()=> signOut({callbackUrl:'/'})}
+      <Button
+        className=" bg-yellow-200"
+        onClick={() => signOut({ callbackUrl: '/' })}
       >
-        Sign out   </Button>
-
-    
+        Sign out{' '}
+      </Button>
     </div>
   );
 }

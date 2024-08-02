@@ -1,21 +1,18 @@
-import { NextApiRequest, NextApiResponse } from 'next';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { setCookie } from 'cookies-next';
+import type { NextApiRequest, NextApiResponse } from 'next';
 import { signIn } from 'next-auth/react';
+
+import type { CustomSignInResponse } from '#/types';
 
 const prisma = new PrismaClient();
 
-interface CustomSignInResponse {
-  ok: boolean;
-  token?: {
-    accessToken: string;
-  };
-  [key: string]: any; // other possible fields
-}
-
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+// eslint-disable-next-line consistent-return
+export default async function handler(
+  req: NextApiRequest,
+  res: NextApiResponse,
+) {
   if (req.method !== 'POST') {
     return res.status(405).json({ error: 'Method not allowed' });
   }
@@ -26,15 +23,28 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
     where: { email },
   });
 
-  if (user && await bcrypt.compare(password, user.password!)) {
-    const token: CustomSignInResponse | null | undefined = await signIn('credentials', {
+  if (user && (await bcrypt.compare(password, user.password!))) {
+    const signInResult = await signIn('credentials', {
       redirect: false,
       email,
       password,
     });
 
-    if (token && token.ok && token.token?.accessToken) {
-      setCookie('auth-token', token.token.accessToken, {
+    if (
+      signInResult &&
+      signInResult.ok &&
+      'token' in signInResult &&
+      signInResult.token
+    ) {
+      const customSignInResponse: CustomSignInResponse = {
+        ...signInResult,
+        token: {
+          accessToken: signInResult.token as string,
+        },
+        error: null,
+      };
+
+      setCookie('auth-token', customSignInResponse.token?.accessToken, {
         req,
         res,
         httpOnly: true,
@@ -43,7 +53,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         maxAge: 30 * 24 * 60 * 60, // 30 days
         path: '/',
       });
-      res.status(200).json({ token: token.token });
+
+      res.status(200).json({ token: customSignInResponse.token });
     } else {
       res.status(401).json({ error: 'Invalid email or password' });
     }

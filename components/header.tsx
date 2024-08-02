@@ -1,18 +1,19 @@
-import React from 'react'
-import PageLogo from './page-logo'
-import { RxAvatar } from 'react-icons/rx'
-import Link from 'next/link'
+import Link from 'next/link';
+import React from 'react';
+import { RxAvatar } from 'react-icons/rx';
 
-type Props = {}
+import PageLogo from './page-logo';
 
-const Header = (props: Props) => {
+const Header = () => {
   return (
-    <div className='sticky top-0 bg-red-500 w-full h-16 flex justify-between p-4 z-10'>    <PageLogo/>
-        <Link href={'/dashboard'}>
-        <RxAvatar className='size-full'/>
-        </Link>
+    <div className="sticky top-0 z-10 flex h-16 w-full justify-between bg-red-500 p-4">
+      {' '}
+      <PageLogo />
+      <Link href="/dashboard">
+        <RxAvatar className="size-full" />
+      </Link>
     </div>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;

@@ -1,12 +1,13 @@
-'use client';
+/* eslint-disable @typescript-eslint/no-explicit-any */
 
+'use client';
 
 import React, { useState } from 'react';
 
+import pi from '#/utils/piNetwork';
 
 import PaymentComponent from './_components/PaymentComponent';
 import PiAuth from './_components/PiAuth';
-import pi from '#/utils/piNetwork';
 
 const Page: React.FC = () => {
   const [userInfo, setUserInfo] = useState<any | null>(null);
@@ -14,7 +15,7 @@ const Page: React.FC = () => {
   return (
     <div>
       {!userInfo ? (
-        <PiAuth setAuthInfo={setUserInfo} authInfo={userInfo}  />
+        <PiAuth setAuthInfo={setUserInfo} authInfo={userInfo} />
       ) : (
         <PaymentComponent userInfo={userInfo} piInstance={pi!} />
       )}
@@ -23,4 +24,3 @@ const Page: React.FC = () => {
 };
 
 export default Page;
-

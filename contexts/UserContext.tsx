@@ -1,8 +1,11 @@
 'use client';
 
-import { AuthResult, PaymentDTO, User } from '#/types';
+import type { User } from '@prisma/client';
+import type { ReactNode } from 'react';
+import React, { createContext, useContext, useMemo, useState } from 'react';
+
+import type { AuthResult, PaymentDTO } from '#/types';
 import axiosClient from '#/utils/axiosClient';
-import React, { createContext, useState, useContext, ReactNode } from 'react';
 
 interface UserContextProps {
   user: User | null;
@@ -12,37 +15,65 @@ interface UserContextProps {
 
 const UserContext = createContext<UserContextProps | undefined>(undefined);
 
-export const UserProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+export const UserProvider: React.FC<{ children: ReactNode }> = ({
+  children,
+}) => {
   const [user, setUser] = useState<User | null>(null);
-  
-  const signIn = async () => {
-    const scopes = ['username', 'payments'];
-    const authResult: AuthResult = await window.Pi!.authenticate(scopes, onIncompletePaymentFound);
-    signInUser(authResult);
-    setUser(authResult.user);
+
+  const signInUser = async (authResult: AuthResult) => {
+    try {
+      const response = await axiosClient.post<{ user: User }>('/user/signin', {
+        authResult,
+      });
+      setUser(response.data.user);
+    } catch (error) {
+      console.error('Sign-in error:', error);
+      // Handle error appropriately
+    }
+  };
+
+  const signOutUser = async () => {
+    try {
+      await axiosClient.get('/user/signout');
+      setUser(null);
+    } catch (error) {
+      console.error('Sign-out error:', error);
+      // Handle error appropriately
+    }
   };
 
   const signOut = () => {
-    setUser(null);
     signOutUser();
   };
 
-  const signInUser = (authResult: AuthResult) => {
-    axiosClient.post('/user/signin', { authResult });
+  const onIncompletePaymentFound = async (payment: PaymentDTO) => {
+    try {
+      await axiosClient.post('/payments/incomplete', { payment });
+    } catch (error) {
+      console.error('Incomplete payment error:', error);
+      // Handle error appropriately
+    }
   };
 
-  const signOutUser = () => {
-    return axiosClient.get('/user/signout');
+  const signIn = async () => {
+    try {
+      const scopes = ['username', 'payments'];
+      const authResult: AuthResult = await window.Pi!.authenticate(
+        scopes,
+        onIncompletePaymentFound,
+      );
+      await signInUser(authResult);
+    } catch (error) {
+      console.error('Authentication error:', error);
+      // Handle error appropriately
+    }
   };
 
-  const onIncompletePaymentFound = (payment: PaymentDTO) => {
-    return axiosClient.post('/payments/incomplete', { payment });
-  };
+  // Memoize the context value to prevent unnecessary re-renders
+  const contextValue = useMemo(() => ({ user, signIn, signOut }), [user]);
 
   return (
-    <UserContext.Provider value={{ user, signIn, signOut }}>
-      {children}
-    </UserContext.Provider>
+    <UserContext.Provider value={contextValue}>{children}</UserContext.Provider>
   );
 };
 

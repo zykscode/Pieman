@@ -16,9 +16,8 @@ const AnimatedGradientText: React.FC<AnimatedGradientTextProps> = ({
   startColor,
   endColor,
   index,
-
 }) => {
-   const styles = {
+  const styles = {
     '--content': content,
     '--start-color': startColor,
     '--end-color': endColor,
