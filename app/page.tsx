@@ -1,3 +1,6 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable react/no-array-index-key */
+
 'use client';
 
 import { Award, Bell, Check, Layers, Scale } from 'lucide-react';
