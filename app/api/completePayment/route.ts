@@ -6,9 +6,16 @@ import pi from '../../../utils/piNetwork';
 const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
-  const { paymentId, txid } = await req.json();
-
   try {
+    const { paymentId, txid } = await req.json();
+
+    if (!paymentId || !txid) {
+      return NextResponse.json(
+        { error: 'paymentId and txid are required' },
+        { status: 400 },
+      );
+    }
+
     const completedPayment = await pi.completePayment(paymentId, txid);
 
     // Find the transaction by paymentId
@@ -31,7 +38,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ completedPayment });
   } catch (error) {
-    console.error(error);
+    console.error('Error completing payment:', error);
     return NextResponse.json(
       { error: 'Failed to complete payment' },
       { status: 500 },
