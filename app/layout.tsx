@@ -26,7 +26,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className={`${inter.className} min-h-screen bg-green-300`}>
+      <body className={`${inter.className} min-h-screen `}>
         <AuthProvider>
           <ThemeProvider attribute="class" defaultTheme="light">
             <div className="grid min-h-screen grid-rows-[auto_1fr_auto] pb-0">

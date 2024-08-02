@@ -9,6 +9,8 @@ import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { useState } from 'react';
 
+import Mockup from '#/public/static/images/mockup.png';
+
 import { Button } from './ui/button';
 import {
   Card,
@@ -56,15 +58,10 @@ export function CreateAccountForm() {
   };
 
   return (
-    <div className="flex min-h-screen bg-black text-white">
+    <div className="flex min-h-screen flex-col md:flex-row">
       {/* Left side with image and quote */}
-      <div className="relative hidden lg:flex lg:w-1/2">
-        <Image
-          src="/path-to-your-image.jpg"
-          alt="Geometric structure"
-          layout="fill"
-          objectFit="cover"
-        />
+      <div className="relative hidden h-full md:flex lg:w-1/2">
+        <Image src={Mockup} alt="Geometric structure" placeholder="blur" />
         <div className="absolute inset-x-10 bottom-10 bg-black bg-opacity-70 p-6">
           <p className="mb-2 text-lg">
             "This library has saved me countless hours of work and helped me
@@ -76,8 +73,8 @@ export function CreateAccountForm() {
       </div>
 
       {/* Right side with form */}
-      <div className="flex w-full items-center justify-center p-8 lg:w-1/2">
-        <Card className="w-full max-w-md bg-gray-900 text-white">
+      <div className="flex size-full items-center justify-center p-2 md:w-1/2">
+        <Card className="w-full max-w-md bg-gray-200 text-white">
           <CardHeader>
             <div className="mb-4 flex items-center justify-between">
               <span className="text-2xl font-bold">Acme Inc</span>

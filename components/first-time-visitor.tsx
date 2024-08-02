@@ -25,7 +25,7 @@ const FirstTimeVisitor = () => {
           Welcome to MiddleMan
         </h1>
         <p className="mb-6 text-xl text-gray-600">
-          Your trusted escrow app for Pi to Naira exchanges
+          Your trusted escrow for Pi to Naira exchanges
         </p>
 
         <div className="w-full max-w-md space-y-4">
@@ -53,9 +53,9 @@ const FirstTimeVisitor = () => {
 
         <p className="mt-6 text-sm text-gray-500">
           Need help?{' '}
-          <a href="#" className="text-blue-600 hover:underline">
+          <Link href="/help" className="text-blue-600 hover:underline">
             Contact support
-          </a>
+          </Link>
         </p>
       </div>
     </div>

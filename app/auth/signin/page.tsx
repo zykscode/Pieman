@@ -3,11 +3,7 @@
 import { CreateAccountForm } from '#/components/create-account';
 
 const LoginPage = () => {
-  return (
-    <div>
-      <CreateAccountForm />
-    </div>
-  );
+  return <CreateAccountForm />;
 };
 
 export default LoginPage;

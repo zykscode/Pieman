@@ -22,7 +22,6 @@ const Page = () => {
       {isFirstTimeVisitor ? (
         <div className="flex flex-col">
           <FirstTimeVisitor />
-          <div className="h min-h-screen">hdhd</div>
         </div>
       ) : (
         <main className="flex min-h-screen flex-col items-center bg-blue-900 p-8 text-white">
