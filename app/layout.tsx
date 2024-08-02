@@ -9,10 +9,10 @@ import PageHeader from '#/components/pageHeader';
 import { AuthProvider } from '#/components/sessionProvider';
 import { TailwindIndicator } from '#/components/tailwind-indicator';
 import { ThemeProvider } from '#/components/theme-provider';
+import { ThemeSwitcher } from '#/components/theme-switcher';
 import { Toaster } from '#/components/ui/toaster';
 import { fontSans } from '#/lib/fonts';
 import { cn } from '#/lib/utils';
-import { ThemeSwitcher } from '#/components/theme-switcher';
 
 export const metadata: Metadata = {
   title: 'Create Next App',
