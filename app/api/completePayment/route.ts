@@ -5,13 +5,21 @@ import pi from '../../../utils/piNetwork';
 
 const prisma = new PrismaClient();
 
-export async function POST(req: Request) {
+export async function POST(req: Request): Promise<Response> {
   try {
     const { paymentId, txid } = await req.json();
 
     if (!paymentId || !txid) {
       return NextResponse.json(
         { error: 'paymentId and txid are required' },
+        { status: 400 },
+      );
+    }
+
+    // Additional validation (if needed)
+    if (typeof paymentId !== 'string' || typeof txid !== 'string') {
+      return NextResponse.json(
+        { error: 'paymentId and txid must be strings' },
         { status: 400 },
       );
     }
@@ -38,7 +46,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ completedPayment });
   } catch (error) {
-    console.error('Error completing payment:', error);
+    console.error('Error handling POST request:', error);
     return NextResponse.json(
       { error: 'Failed to complete payment' },
       { status: 500 },
