@@ -1,4 +1,5 @@
 /* eslint-disable no-console */
+/* eslint-disable no-console */
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
 
@@ -26,6 +27,7 @@ async function main() {
       password,
       role: 'USER',
       emailVerified: new Date(),
+      username: 'john_doe',
     },
   });
 
@@ -36,6 +38,7 @@ async function main() {
       password,
       role: 'USER',
       emailVerified: new Date(),
+      username: 'jane_smith',
     },
   });
 
@@ -46,6 +49,24 @@ async function main() {
       password: adminPassword,
       role: 'ADMIN',
       emailVerified: new Date(),
+      username: 'admin_user',
+    },
+  });
+
+  // Seed wallets
+  const wallet1 = await prisma.wallet.create({
+    data: {
+      userId: user1.id,
+      address: '0xAliceWalletAddress',
+      balance: 100.0,
+    },
+  });
+
+  const wallet2 = await prisma.wallet.create({
+    data: {
+      userId: user2.id,
+      address: '0xBobWalletAddress',
+      balance: 200.0,
     },
   });
 
@@ -56,8 +77,8 @@ async function main() {
       seller: { connect: { id: user2.id } },
       piAmount: 10.5,
       nairaAmount: 5000,
-      paymentId: generateUniquePaymentId(), // Add this line
-      rate: 476.19, // Example exchange rate
+      paymentId: generateUniquePaymentId(),
+      rate: 476.19,
       status: 'PENDING',
     },
   });
@@ -68,8 +89,8 @@ async function main() {
       seller: { connect: { id: user1.id } },
       piAmount: 20.0,
       nairaAmount: 8000,
-      paymentId: generateUniquePaymentId(), // Add this line
-      rate: 400.0, // Example exchange rate
+      paymentId: generateUniquePaymentId(),
+      rate: 400.0,
       status: 'CONFIRMED',
     },
   });
@@ -91,14 +112,73 @@ async function main() {
     },
   });
 
+  // Seed escrow wallets
+  const escrowWallet1 = await prisma.escrowWallet.create({
+    data: {
+      address: '0xEscrowWalletAddress1',
+      balance: 50.0,
+    },
+  });
+
+  const escrowWallet2 = await prisma.escrowWallet.create({
+    data: {
+      address: '0xEscrowWalletAddress2',
+      balance: 100.0,
+    },
+  });
+
+  // Seed escrow transactions
+  const escrowTransaction1 = await prisma.escrowTransaction.create({
+    data: {
+      escrowWalletId: escrowWallet1.id,
+      amount: 25.0,
+      type: 'DEPOSIT',
+      status: 'PENDING',
+    },
+  });
+
+  const escrowTransaction2 = await prisma.escrowTransaction.create({
+    data: {
+      escrowWalletId: escrowWallet2.id,
+      amount: 50.0,
+      type: 'WITHDRAWAL',
+      status: 'COMPLETED',
+    },
+  });
+
+  // Seed escrows
+  const escrow1 = await prisma.escrow.create({
+    data: {
+      transaction: { connect: { id: transaction1.id } },
+      amount: 15.0,
+      status: 'PENDING',
+    },
+  });
+
+  const escrow2 = await prisma.escrow.create({
+    data: {
+      transaction: { connect: { id: transaction2.id } },
+      amount: 30.0,
+      status: 'FUNDED',
+    },
+  });
+
   console.log({
     user1,
     user2,
     admin,
+    wallet1,
+    wallet2,
     transaction1,
     transaction2,
     rating1,
     rating2,
+    escrowWallet1,
+    escrowWallet2,
+    escrowTransaction1,
+    escrowTransaction2,
+    escrow1,
+    escrow2,
   });
 }
 
