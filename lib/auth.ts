@@ -29,7 +29,7 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 60, // 30 days
+    maxAge: 60 * 60 * 24 * 30, // 30 days
   },
   providers: [
     GoogleProvider({
@@ -115,7 +115,34 @@ export const authOptions: NextAuthOptions = {
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async signIn({ user, account }) {
+      if (account?.provider === 'google') {
+        const existingUser = await prisma.user.findUnique({
+          where: { email: user.email! },
+        });
+
+        if (!existingUser) {
+          // Auto-register the user
+          const newUser = await prisma.user.create({
+            data: {
+              name: user.name!,
+              email: user.email!,
+              image: user.image,
+              emailVerified: new Date(),
+              role: 'user',
+            },
+          });
+
+          user.id = newUser.id;
+          user.role = newUser.role;
+        } else {
+          user.id = existingUser.id;
+          user.role = existingUser.role;
+        }
+      }
+      return true;
+    },
+    async jwt({ token, user, account }) {
       if (user) {
         const customUser = user as CustomUser;
         token.id = customUser.id;
@@ -123,8 +150,13 @@ export const authOptions: NextAuthOptions = {
         token.email = customUser.email;
         token.picture = customUser.image;
         token.emailVerified = customUser.emailVerified;
-        token.accessToken = customUser.accessToken;
         token.role = customUser.role;
+
+        if (account?.provider === 'credentials') {
+          token.accessToken = customUser.accessToken;
+        } else if (account?.provider === 'google') {
+          token.accessToken = account.access_token;
+        }
       }
       return token;
     },
@@ -146,9 +178,7 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
-    signIn: '/auth/signin',
     verifyRequest: '/auth/verify-request',
-    error: '/auth/error', // Error code passed in query string as ?error=
     newUser: '/auth/get-started', // Custom "Get Started" page for new users
   },
   debug: process.env.NODE_ENV === 'development',

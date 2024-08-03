@@ -25,6 +25,7 @@ model User {
   wallet           Wallet?
   failedAttempts   Int           @default(0)
   lockedUntil      DateTime?
+  username         String?       @unique
 
   @@map(name: "users")
 }

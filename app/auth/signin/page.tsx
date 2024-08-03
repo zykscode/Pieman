@@ -1,9 +1,9 @@
 'use client';
 
-import { CreateAccountForm } from '#/components/create-account';
+import { LoginForm } from '#/components/login-account';
 
 const LoginPage = () => {
-  return <CreateAccountForm />;
+  return <LoginForm />;
 };
 
 export default LoginPage;

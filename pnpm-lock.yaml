@@ -17,6 +17,9 @@ importers:
       '@clerk/nextjs':
         specifier: ^5.0.12
         version: 5.0.12(next@14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@hookform/resolvers':
+        specifier: ^3.9.0
+        version: 3.9.0(react-hook-form@7.51.4(react@18.3.1))
       '@next-auth/prisma-adapter':
         specifier: ^1.0.7
         version: 1.0.7(@prisma/client@5.14.0(prisma@5.14.0))(next-auth@4.24.7(next@14.2.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
@@ -772,6 +775,11 @@ packages:
 
   '@hapi/hoek@9.3.0':
     resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
+
+  '@hookform/resolvers@3.9.0':
+    resolution: {integrity: sha512-bU0Gr4EepJ/EQsH/IwEzYLsT/PEj5C0ynLQ4m+GSHS+xKH4TfSelhluTgOaoc4kA5s7eCsQbM4wvZLzELmWzUg==}
+    peerDependencies:
+      react-hook-form: ^7.0.0
 
   '@humanwhocodes/config-array@0.11.14':
     resolution: {integrity: sha512-3T8LkOmg45BV5FICb15QQMsyUSWrQ8AygVfC7ZG32zOalnqrilm018ZVCw0eapXux8FtA33q8PSRSstjee3jSg==}
@@ -5621,6 +5629,10 @@ snapshots:
       '@hapi/hoek': 9.3.0
 
   '@hapi/hoek@9.3.0': {}
+
+  '@hookform/resolvers@3.9.0(react-hook-form@7.51.4(react@18.3.1))':
+    dependencies:
+      react-hook-form: 7.51.4(react@18.3.1)
 
   '@humanwhocodes/config-array@0.11.14':
     dependencies:
