@@ -93,10 +93,14 @@ model Transaction {
   status            TransactionStatus   @default(PENDING)
   createdAt         DateTime            @default(now())
   updatedAt         DateTime            @default(now())
+  expirationDate    DateTime?
   escrow            Escrow?
   escrowWalletId    String?
   escrowWallet      EscrowWallet?       @relation(fields: [escrowWalletId], references: [id])
   EscrowTransaction EscrowTransaction[]
+
+  @@index([buyerId])
+  @@index([sellerId])
 }
 
 model Escrow {
@@ -128,6 +132,9 @@ model EscrowTransaction {
   relatedTransaction   Transaction?            @relation(fields: [relatedTransactionId], references: [id])
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt
+
+  @@index([escrowWalletId])
+  @@index([relatedTransactionId])
 }
 
 enum UserRole {

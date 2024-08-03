@@ -1,11 +1,8 @@
-/* eslint-disable no-param-reassign */
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
-// eslint-disable-next-line import/no-extraneous-dependencies
 import jwt from 'jsonwebtoken';
 import type { NextAuthOptions } from 'next-auth';
-import NextAuth from 'next-auth';
 import CredentialsProvider from 'next-auth/providers/credentials';
 import GoogleProvider from 'next-auth/providers/google';
 
@@ -29,32 +26,35 @@ export const authOptions: NextAuthOptions = {
   secret: process.env.NEXTAUTH_SECRET,
   session: {
     strategy: 'jwt',
-    maxAge: 60 * 60 * 24 * 30, // 30 days
+    maxAge: 30 * 24 * 60 * 60, // 30 days
   },
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_ID!,
       clientSecret: process.env.GOOGLE_SECRET!,
-      profile(profile) {
-        return {
+      profile(profile): Promise<CustomUser> {
+        return Promise.resolve({
           id: profile.sub,
-          name: profile.name,
+          name: profile.name || undefined,
           email: profile.email,
-          image: profile.picture,
+          image: profile.picture || undefined,
           emailVerified: profile.email_verified
             ? new Date(profile.email_verified)
-            : null,
-          password: '',
-          role: 'user',
-          archivedts: null,
-          accessToken: '',
-        } as CustomUser;
+            : undefined,
+          role: 'USER',
+          password: undefined,
+          archived: false,
+          archivedts: undefined,
+          failedAttempts: 0,
+          lockedUntil: undefined,
+          username: undefined,
+        });
       },
     }),
     CredentialsProvider({
-      name: 'credentials',
+      name: 'Credentials',
       credentials: {
-        email: { label: 'Email', type: 'text', placeholder: 'email' },
+        email: { label: 'Email', type: 'text' },
         password: { label: 'Password', type: 'password' },
       },
       async authorize(credentials) {
@@ -93,7 +93,6 @@ export const authOptions: NextAuthOptions = {
           throw new Error('Invalid password');
         }
 
-        // Reset failed attempts on successful login
         await prisma.user.update({
           where: { email: credentials.email },
           data: { failedAttempts: 0, lockedUntil: null },
@@ -109,8 +108,7 @@ export const authOptions: NextAuthOptions = {
           emailVerified: user.emailVerified,
           accessToken,
           role: user.role,
-          archivedts: user.archivedts,
-        } as CustomUser;
+        };
       },
     }),
   ],
@@ -122,22 +120,21 @@ export const authOptions: NextAuthOptions = {
         });
 
         if (!existingUser) {
-          // Auto-register the user
-          const newUser = await prisma.user.create({
+          await prisma.user.create({
             data: {
               name: user.name!,
               email: user.email!,
               image: user.image,
               emailVerified: new Date(),
               role: 'USER',
+              archived: false,
+              archivedts: null,
+              failedAttempts: 0,
+              lockedUntil: null,
+              username: null,
+              password: null,
             },
           });
-
-          user.id = newUser.id;
-          user.role = newUser.role;
-        } else {
-          user.id = existingUser.id;
-          user.role = existingUser.role;
         }
       }
       return true;
@@ -145,29 +142,36 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user, account }) {
       if (user) {
         const customUser = user as CustomUser;
-        token.id = customUser.id;
-        token.name = customUser.name;
-        token.email = customUser.email;
-        token.picture = customUser.image;
-        token.emailVerified = customUser.emailVerified;
-        token.role = customUser.role;
-
-        if (account?.provider === 'credentials') {
-          token.accessToken = customUser.accessToken;
-        } else if (account?.provider === 'google') {
-          token.accessToken = account.access_token;
-        }
+        return {
+          ...token,
+          id: customUser.id,
+          name: customUser.name,
+          email: customUser.email,
+          picture: customUser.image,
+          emailVerified: customUser.emailVerified,
+          role: customUser.role,
+          accessToken:
+            account?.provider === 'credentials'
+              ? customUser.accessToken
+              : account?.access_token,
+        };
       }
       return token;
     },
     async session({ session, token }) {
       if (token && session.user) {
-        session.user.id = token.id as string;
-        session.user.name = token.name;
-        session.user.email = token.email;
-        session.user.image = token.picture as string | null;
-        session.accessToken = token.accessToken as string;
-        session.user.role = token.role as string;
+        return {
+          ...session,
+          user: {
+            ...session.user,
+            id: token.id as string,
+            name: token.name,
+            email: token.email,
+            image: token.picture as string | null,
+            role: token.role as string,
+          },
+          accessToken: token.accessToken as string,
+        };
       }
       return session;
     },
@@ -178,13 +182,14 @@ export const authOptions: NextAuthOptions = {
     },
   },
   pages: {
+    signIn: '/auth/signin',
+    signOut: '/auth/signout',
+    error: '/auth/error',
     verifyRequest: '/auth/verify-request',
-    newUser: '/auth/get-started', // Custom "Get Started" page for new users
+    newUser: '/auth/get-started',
   },
-  debug: process.env.NODE_ENV === 'development',
   events: {
     async createUser({ user }) {
-      // Custom logic for when a new user is created
       await prisma.user.update({
         where: { id: user.id },
         data: { failedAttempts: 0, lockedUntil: null },
@@ -203,5 +208,3 @@ export const authOptions: NextAuthOptions = {
     },
   },
 };
-
-export default NextAuth(authOptions);
