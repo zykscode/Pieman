@@ -129,7 +129,7 @@ export const authOptions: NextAuthOptions = {
               email: user.email!,
               image: user.image,
               emailVerified: new Date(),
-              role: 'user',
+              role: 'USER',
             },
           });
 

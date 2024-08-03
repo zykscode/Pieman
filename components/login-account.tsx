@@ -1,3 +1,7 @@
+/* eslint-disable react/no-unescaped-entities */
+/* eslint-disable tailwindcss/migration-from-tailwind-2 */
+/* eslint-disable import/no-extraneous-dependencies */
+
 'use client';
 
 import { zodResolver } from '@hookform/resolvers/zod';
