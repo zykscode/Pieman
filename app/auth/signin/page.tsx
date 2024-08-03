@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable react/button-has-type */
 /* eslint-disable react/no-unescaped-entities */
 /* eslint-disable consistent-return */
@@ -22,7 +23,7 @@ const SignIn = () => {
     fetchProviders();
   }, []);
 
-  const handleSignIn = async (e) => {
+  const handleSignIn = async (e: { preventDefault: () => void }) => {
     e.preventDefault();
     setError(null);
 
