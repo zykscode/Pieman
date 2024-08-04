@@ -1,6 +1,7 @@
 import '#/styles/globals.css';
 import '#/styles/try.css';
 
+import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
 import type { Metadata } from 'next';
 
@@ -32,33 +33,35 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body
-        className={cn(
-          'min-h-screen bg-background font-sans antialiased',
-          fontSans.variable,
-        )}
-      >
-        {' '}
-        <AuthProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            <div className="grid min-h-screen grid-rows-[auto_1fr_auto] pb-0">
-              <Header />
-              <main className="overflow-auto  px-4">{children}</main>
-              <PageHeader />
-            </div>
-            <Toaster />
-            <ThemeSwitcher />
-            <Analytics />
-            <TailwindIndicator />
-          </ThemeProvider>
-        </AuthProvider>
-      </body>
-    </html>
+    <ClerkProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body
+          className={cn(
+            'min-h-screen bg-background font-sans antialiased',
+            fontSans.variable,
+          )}
+        >
+          {' '}
+          <AuthProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <div className="grid min-h-screen grid-rows-[auto_1fr_auto] pb-0">
+                <Header />
+                <main className="overflow-auto  px-4">{children}</main>
+                <PageHeader />
+              </div>
+              <Toaster />
+              <ThemeSwitcher />
+              <Analytics />
+              <TailwindIndicator />
+            </ThemeProvider>
+          </AuthProvider>
+        </body>
+      </html>
+    </ClerkProvider>
   );
 }
