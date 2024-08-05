@@ -23,7 +23,6 @@ export default function Dashboard() {
     <div className="flex flex-col bg-red-600">
       <h1>Welcome, {user?.firstName || 'User'}</h1>
       {/* Dashboard content */}
-     
     </div>
   );
 }
