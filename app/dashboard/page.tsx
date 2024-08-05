@@ -1,32 +1,29 @@
 'use client';
 
-import { redirect } from 'next/navigation';
-import { signOut, useSession } from 'next-auth/react';
+import { RedirectToSignIn, SignedOut, useUser } from '@clerk/nextjs';
+import { signOut } from 'next-auth/react';
 
 import { Button } from '#/components/ui/button';
 
 export default function Dashboard() {
-  const { data: session, status } = useSession({
-    required: true,
-    onUnauthenticated() {
-      redirect('/auth/signin');
-    },
-  });
+  const { user, isLoaded, isSignedIn } = useUser();
 
-  if (status === 'loading') {
+  if (!isLoaded) {
     return <p>Loading...</p>;
   }
 
+  if (!isSignedIn) {
+    <SignedOut>
+      <RedirectToSignIn />
+    </SignedOut>;
+    return null; // Return null to prevent further rendering
+  }
+
   return (
-    <div className="flex flex-col  bg-red-600">
-      <h1>Welcome, {session?.user?.name || 'User'}</h1>
+    <div className="flex flex-col bg-red-600">
+      <h1>Welcome, {user?.firstName || 'User'}</h1>
       {/* Dashboard content */}
-      <Button
-        className=" bg-yellow-200"
-        onClick={() => signOut({ callbackUrl: '/' })}
-      >
-        Sign out{' '}
-      </Button>
+     
     </div>
   );
 }
