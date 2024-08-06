@@ -1,189 +1,140 @@
+/* eslint-disable no-plusplus */
+/* eslint-disable no-await-in-loop */
 /* eslint-disable no-console */
 /* eslint-disable no-console */
 const { PrismaClient } = require('@prisma/client');
-const bcrypt = require('bcrypt');
+const faker = require('@faker-js/faker');
 
 const prisma = new PrismaClient();
-
-const generateUniqueEmail = (name: string) => {
-  const randomString = Math.random().toString(36).substring(2, 8);
-  return `${name.replace(' ', '_').toLowerCase()}_${randomString}@example.com`;
-};
-
-const generateUniquePaymentId = () => {
-  return `payment_${Math.random().toString(36).substring(2, 15)}`;
-};
-
 async function main() {
-  // Seed users
-  const saltRounds = 10;
-  const password = await bcrypt.hash('password', saltRounds);
-  const adminPassword = await bcrypt.hash('adminpassword', saltRounds);
+  // Create users
+  const users = [];
+  for (let i = 0; i < 10; i++) {
+    const user = await prisma.user.create({
+      data: {
+        name: faker.person.fullName(),
+        email: faker.internet.email(),
+        emailVerified: faker.date.past(),
+        password: faker.internet.password(),
+        image: faker.image.avatar(),
+        role: faker.helpers.arrayElement(['USER', 'ADMIN'] as const),
+        username: faker.internet.userName(),
+      },
+    });
+    users.push(user);
+  }
 
-  const user1 = await prisma.user.create({
-    data: {
-      name: 'John Doe',
-      email: generateUniqueEmail('John Doe'),
-      password,
-      role: 'USER',
-      emailVerified: new Date(),
-      username: 'john_doe',
-    },
-  });
+  // Create wallets for users
+  for (const user of users) {
+    await prisma.wallet.create({
+      data: {
+        userId: user.id,
+        address: faker.finance.ethereumAddress(),
+        balance: parseFloat(faker.finance.amount(0, 1000, 2)),
+      },
+    });
+  }
 
-  const user2 = await prisma.user.create({
-    data: {
-      name: 'Jane Smith',
-      email: generateUniqueEmail('Jane Smith'),
-      password,
-      role: 'USER',
-      emailVerified: new Date(),
-      username: 'jane_smith',
-    },
-  });
+  // Create transactions
+  for (let i = 0; i < 20; i++) {
+    const buyer = faker.helpers.arrayElement(users);
+    const seller = faker.helpers.arrayElement(
+      users.filter((u) => u.id !== buyer.id),
+    );
+    const piAmount = parseFloat(faker.finance.amount(10, 1000, 2));
+    const rate = parseFloat(faker.finance.amount(50, 200, 2));
 
-  const admin = await prisma.user.create({
-    data: {
-      name: 'Admin User',
-      email: generateUniqueEmail('Admin User'),
-      password: adminPassword,
-      role: 'ADMIN',
-      emailVerified: new Date(),
-      username: 'admin_user',
-    },
-  });
+    const transaction = await prisma.transaction.create({
+      data: {
+        paymentId: faker.string.uuid(),
+        buyerId: buyer.id,
+        sellerId: seller.id,
+        piAmount,
+        nairaAmount: piAmount * rate,
+        rate,
+        description: faker.lorem.sentence(),
+        status: faker.helpers.arrayElement([
+          'PENDING',
+          'CONFIRMED',
+          'REFUNDED',
+        ] as const),
+        expirationDate: faker.date.future(),
+      },
+    });
 
-  // Seed wallets
-  const wallet1 = await prisma.wallet.create({
-    data: {
-      userId: user1.id,
-      address: '0xAliceWalletAddress',
-      balance: 100.0,
-    },
-  });
+    // Create escrow for some transactions
+    if (faker.datatype.boolean()) {
+      await prisma.escrow.create({
+        data: {
+          transactionId: transaction.id,
+          amount: piAmount,
+          status: faker.helpers.arrayElement([
+            'PENDING',
+            'FUNDED',
+            'RELEASED',
+            'REFUNDED',
+          ] as const),
+        },
+      });
+    }
+  }
 
-  const wallet2 = await prisma.wallet.create({
-    data: {
-      userId: user2.id,
-      address: '0xBobWalletAddress',
-      balance: 200.0,
-    },
-  });
+  // Create escrow wallets
+  const escrowWallets = [];
+  for (let i = 0; i < 3; i++) {
+    const wallet = await prisma.escrowWallet.create({
+      data: {
+        address: faker.finance.ethereumAddress(),
+        balance: parseFloat(faker.finance.amount(1000, 10000, 2)),
+      },
+    });
+    escrowWallets.push(wallet);
+  }
 
-  // Seed transactions
-  const transaction1 = await prisma.transaction.create({
-    data: {
-      buyer: { connect: { id: user1.id } },
-      seller: { connect: { id: user2.id } },
-      piAmount: 10.5,
-      nairaAmount: 5000,
-      paymentId: generateUniquePaymentId(),
-      rate: 476.19,
-      status: 'PENDING',
-    },
-  });
+  // Create escrow transactions
+  for (let i = 0; i < 15; i++) {
+    const escrowWallet = faker.helpers.arrayElement(escrowWallets);
+    const transaction = await prisma.transaction.findFirst({
+      where: { status: 'PENDING' },
+    });
 
-  const transaction2 = await prisma.transaction.create({
-    data: {
-      buyer: { connect: { id: user2.id } },
-      seller: { connect: { id: user1.id } },
-      piAmount: 20.0,
-      nairaAmount: 8000,
-      paymentId: generateUniquePaymentId(),
-      rate: 400.0,
-      status: 'CONFIRMED',
-    },
-  });
+    await prisma.escrowTransaction.create({
+      data: {
+        escrowWalletId: escrowWallet.id,
+        amount: parseFloat(faker.finance.amount(10, 1000, 2)),
+        type: faker.helpers.arrayElement(['DEPOSIT', 'WITHDRAWAL'] as const),
+        status: faker.helpers.arrayElement([
+          'PENDING',
+          'COMPLETED',
+          'FAILED',
+        ] as const),
+        relatedTransactionId: transaction ? transaction.id : null,
+      },
+    });
+  }
 
-  // Seed ratings
-  const rating1 = await prisma.rating.create({
-    data: {
-      user: { connect: { id: user1.id } },
-      rating: 4.5,
-      comment: 'Great service!',
-    },
-  });
+  // Create ratings
+  for (const user of users) {
+    const ratingsCount = faker.number.int({ min: 0, max: 5 });
+    for (let i = 0; i < ratingsCount; i++) {
+      await prisma.rating.create({
+        data: {
+          userId: user.id,
+          rating: faker.number.float({ min: 1, max: 5, precision: 0.1 }),
+          comment: faker.lorem.sentence(),
+        },
+      });
+    }
+  }
 
-  const rating2 = await prisma.rating.create({
-    data: {
-      user: { connect: { id: user2.id } },
-      rating: 3.8,
-      comment: 'Could be better.',
-    },
-  });
-
-  // Seed escrow wallets
-  const escrowWallet1 = await prisma.escrowWallet.create({
-    data: {
-      address: '0xEscrowWalletAddress1',
-      balance: 50.0,
-    },
-  });
-
-  const escrowWallet2 = await prisma.escrowWallet.create({
-    data: {
-      address: '0xEscrowWalletAddress2',
-      balance: 100.0,
-    },
-  });
-
-  // Seed escrow transactions
-  const escrowTransaction1 = await prisma.escrowTransaction.create({
-    data: {
-      escrowWalletId: escrowWallet1.id,
-      amount: 25.0,
-      type: 'DEPOSIT',
-      status: 'PENDING',
-    },
-  });
-
-  const escrowTransaction2 = await prisma.escrowTransaction.create({
-    data: {
-      escrowWalletId: escrowWallet2.id,
-      amount: 50.0,
-      type: 'WITHDRAWAL',
-      status: 'COMPLETED',
-    },
-  });
-
-  // Seed escrows
-  const escrow1 = await prisma.escrow.create({
-    data: {
-      transaction: { connect: { id: transaction1.id } },
-      amount: 15.0,
-      status: 'PENDING',
-    },
-  });
-
-  const escrow2 = await prisma.escrow.create({
-    data: {
-      transaction: { connect: { id: transaction2.id } },
-      amount: 30.0,
-      status: 'FUNDED',
-    },
-  });
-
-  console.log({
-    user1,
-    user2,
-    admin,
-    wallet1,
-    wallet2,
-    transaction1,
-    transaction2,
-    rating1,
-    rating2,
-    escrowWallet1,
-    escrowWallet2,
-    escrowTransaction1,
-    escrowTransaction2,
-    escrow1,
-    escrow2,
-  });
+  console.log('Seed data created successfully');
 }
 
 main()
-  .catch((e) => console.error(e))
+  .catch((e) => {
+    console.error(e);
+    process.exit(1);
+  })
   .finally(async () => {
     await prisma.$disconnect();
   });
