@@ -3,8 +3,9 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
 model User {
@@ -17,8 +18,8 @@ model User {
   role             UserRole      @default(USER)
   archived         Boolean       @default(false)
   ratings          Rating[]
-  transactions     Transaction[] @relation("TransactionBuyer")
-  soldTransactions Transaction[] @relation("TransactionSeller")
+  transactions     Transaction[] @relation("UserAsBuyer")
+  soldTransactions Transaction[] @relation("UserAsSeller")
   accounts         Account[]
   sessions         Session[]
   archivedts       DateTime?
@@ -44,7 +45,7 @@ model Account {
   id_token          String?  @db.Text
   session_state     String?
   createdAt         DateTime @default(now()) @map(name: "created_at")
-  updatedAt         DateTime @default(now()) @map(name: "updated_at")
+  updatedAt         DateTime @default(now()) @updatedAt @map(name: "updated_at")
   user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
@@ -71,20 +72,20 @@ model Wallet {
 
 model Rating {
   id        String   @id @default(cuid())
-  user      User     @relation(fields: [userId], references: [id])
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId    String
   rating    Float
   comment   String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+
+  @@index([userId])
 }
 
 model Transaction {
   id                String              @id @default(cuid())
   paymentId         String              @unique
-  buyer             User                @relation("TransactionBuyer", fields: [buyerId], references: [id])
   buyerId           String
-  seller            User                @relation("TransactionSeller", fields: [sellerId], references: [id])
   sellerId          String
   piAmount          Float
   nairaAmount       Float
@@ -92,25 +93,31 @@ model Transaction {
   description       String?
   status            TransactionStatus   @default(PENDING)
   createdAt         DateTime            @default(now())
-  updatedAt         DateTime            @default(now())
+  updatedAt         DateTime            @updatedAt
   expirationDate    DateTime?
   escrow            Escrow?
   escrowWalletId    String?
   escrowWallet      EscrowWallet?       @relation(fields: [escrowWalletId], references: [id])
   EscrowTransaction EscrowTransaction[]
 
+  buyer  User @relation("UserAsBuyer", fields: [buyerId], references: [id])
+  seller User @relation("UserAsSeller", fields: [sellerId], references: [id])
+
   @@index([buyerId])
   @@index([sellerId])
+  @@index([status])
 }
 
 model Escrow {
   id            String       @id @default(cuid())
-  transaction   Transaction  @relation(fields: [transactionId], references: [id])
+  transaction   Transaction  @relation(fields: [transactionId], references: [id], onDelete: Cascade)
   transactionId String       @unique
   amount        Float
   status        EscrowStatus @default(PENDING)
   createdAt     DateTime     @default(now())
   updatedAt     DateTime     @updatedAt
+
+  @@index([transactionId])
 }
 
 model EscrowWallet {
@@ -124,12 +131,12 @@ model EscrowWallet {
 model EscrowTransaction {
   id                   String                  @id @default(cuid())
   escrowWalletId       String
-  escrowWallet         EscrowWallet            @relation(fields: [escrowWalletId], references: [id])
+  escrowWallet         EscrowWallet            @relation(fields: [escrowWalletId], references: [id], onDelete: Cascade)
   amount               Float
   type                 EscrowTransactionType
   status               EscrowTransactionStatus @default(PENDING)
   relatedTransactionId String?
-  relatedTransaction   Transaction?            @relation(fields: [relatedTransactionId], references: [id])
+  relatedTransaction   Transaction?            @relation(fields: [relatedTransactionId], references: [id], onDelete: SetNull)
   createdAt            DateTime                @default(now())
   updatedAt            DateTime                @updatedAt
 
