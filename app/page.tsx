@@ -21,7 +21,7 @@ const Page = () => {
   }, []);
   return (
     <div className="flex grow flex-col">
-      {isFirstTimeVisitor ? (
+      {!isFirstTimeVisitor ? (
         <div className="flex flex-col">
           <FirstTimeVisitor />
         </div>
