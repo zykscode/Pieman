@@ -43,10 +43,10 @@ const FirstTimeVisitor = () => {
               variant="outline"
               className="w-full border-blue-800 bg-white text-blue-800 hover:bg-blue-100"
             >
-              <Link href="/auth/signin">Log In</Link>
+              <Link href="/auth/sign-in">Log In</Link>
             </Button>
             <Button className="w-full bg-blue-800 text-white hover:bg-blue-700">
-              <Link href="/auth/signup">Sign Up</Link>
+              <Link href="/auth/sign-up">Sign Up</Link>
             </Button>
           </div>
         </div>
