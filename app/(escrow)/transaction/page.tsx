@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // app/transactions/page.tsx
 
@@ -35,6 +36,7 @@ async function getTransactions(userId: string) {
 }
 
 export default async function TransactionsPage() {
+  // eslint-disable-next-line unused-imports/no-unused-vars
   const user = await currentUser();
   const userId = 'clzsx310t000311pr09k06jnb';
 

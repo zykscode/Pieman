@@ -1,36 +1,40 @@
-import React from 'react';
+import { motion } from 'framer-motion';
+import Link from 'next/link';
 
-import AnimatedGradientText from './AnimatedGradientText';
-
-const Hero = () => {
+export default function Hero() {
   return (
-    <div className="flex">
-      <div className="mt-16">
-        <h1 className="show-counter">
-          <AnimatedGradientText
-            content="Trusted"
-            index={1}
-            startColor="#00ca12"
-            endColor="#f0ce12"
-          />
-
-          <AnimatedGradientText
-            content="Middle"
-            index={2}
-            startColor="var(--yellow)"
-            endColor="var(--red)"
-          />
-
-          <AnimatedGradientText
-            content="man"
-            startColor="var(--blue)"
-            index={3}
-            endColor="var(--pink)"
-          />
-        </h1>{' '}
+    <section className="bg-indigo-700 text-white">
+      <div className="container mx-auto px-4 py-20 text-center">
+        <motion.h1
+          initial={{ opacity: 0, y: -50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5 }}
+          className="mb-4 text-5xl font-bold"
+        >
+          Simplifying Secure Transactions
+        </motion.h1>
+        <motion.p
+          initial={{ opacity: 0, y: 50 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, delay: 0.2 }}
+          className="mb-8 text-lg"
+        >
+          Trust us to safeguard your Pi and Naira exchanges with top-notch
+          escrow services.
+        </motion.p>
+        <motion.div
+          initial={{ opacity: 0, scale: 0.8 }}
+          animate={{ opacity: 1, scale: 1 }}
+          transition={{ duration: 0.5, delay: 0.4 }}
+        >
+          <Link
+            href="/get-started"
+            className="rounded-full bg-green-500 px-6 py-2 font-semibold text-white hover:bg-green-600"
+          >
+            Get Started
+          </Link>
+        </motion.div>
       </div>
-    </div>
+    </section>
   );
-};
-
-export default Hero;
+}

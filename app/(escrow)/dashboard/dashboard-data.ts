@@ -1,3 +1,5 @@
+/* eslint-disable no-underscore-dangle */
+
 import { prisma } from '#/lib/db';
 
 async function getActiveEscrows() {

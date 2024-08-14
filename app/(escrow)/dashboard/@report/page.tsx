@@ -1,7 +1,7 @@
 /* eslint-disable no-underscore-dangle */
 // app/report/page.tsx
 
-import { currentUser } from '@clerk/nextjs/server';
+// import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 
 import { Button } from '#/components/ui/button';
@@ -58,7 +58,7 @@ async function generateReport(userId: string) {
 }
 
 export default async function ReportPage() {
-  const user = await currentUser();
+  // const user = await currentUser();
   const userId = 'clzsx310t000311pr09k06jnb';
   if (!userId) {
     return <div>Please log in to generate a report.</div>;
