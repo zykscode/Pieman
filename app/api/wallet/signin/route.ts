@@ -20,7 +20,7 @@ export async function POST(req: NextRequest) {
       headers: { Authorization: `Bearer ${auth.accessToken}` },
     });
 
-    console.log(me.data,'sjhsgghas sghsghasghghasgaskj ssgsgjasj');
+    console.log(me.data, 'sjhsgghas sghsghasghghasgaskj ssgsgjasj');
 
     // Fetch wallet from the database based on the wallet address
     let wallet = await prisma.wallet.findUnique({
