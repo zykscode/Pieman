@@ -1,39 +1,58 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable react/no-array-index-key */
-
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import { useUser } from '@clerk/nextjs';
+import { motion } from 'framer-motion';
+import React, { lazy, Suspense } from 'react';
 
-import Features from '#/components/features';
-import FirstTimeVisitor from '#/components/first-time-visitor';
-import Hero from '#/components/hero';
+import LoadingSpinner from '#/components/LoadingSpinner';
+import { useWallet } from '#/contexts/UserContext';
+
+const Hero = lazy(() => import('../components/Hero'));
+const Features = lazy(() => import('../components/Features'));
+const FirstTimeVisitor = lazy(() => import('#/components/FirstTimeVisitor'));
+const ReturningUserDashboard = lazy(
+  () => import('#/components/ReturningUserDashboard'),
+);
 
 const Page = () => {
-  const [isFirstTimeVisitor, setIsFirstTimeVisitor] = useState(false);
+  const [isFirstTimeVisitor, setIsFirstTimeVisitor] = React.useState(false);
+  const { isSignedIn, user } = useUser();
+  const { balance, address } = useWallet();
 
-  useEffect(() => {
+  React.useEffect(() => {
     const isReturningUser = localStorage.getItem('isReturningUser');
     if (!isReturningUser) {
       setIsFirstTimeVisitor(true);
       localStorage.setItem('isReturningUser', 'true');
     }
   }, []);
+
   return (
-    <div className="flex grow flex-col">
-      {isFirstTimeVisitor ? (
-        <div className="flex flex-col">
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.5 }}
+      className="flex grow flex-col"
+    >
+      <Suspense fallback={<LoadingSpinner />}>
+        {isFirstTimeVisitor ? (
           <FirstTimeVisitor />
-        </div>
-      ) : (
-        <main className="flex min-h-screen flex-col items-center bg-blue-900 p-8 text-white">
-          <div>
+        ) : (
+          <main className="flex min-h-screen flex-col items-center bg-gradient-to-b from-blue-900 to-indigo-800">
             <Hero />
-            <Features />
-          </div>
-        </main>
-      )}
-    </div>
+            {isSignedIn ? (
+              <ReturningUserDashboard
+                user={user}
+                balance={balance}
+                address={address}
+              />
+            ) : (
+              <Features />
+            )}
+          </main>
+        )}
+      </Suspense>
+    </motion.div>
   );
 };
 

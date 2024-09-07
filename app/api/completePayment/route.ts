@@ -1,54 +1,51 @@
-import { PrismaClient } from '@prisma/client';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
-import pi from '../../../utils/piNetwork';
+import { createPayment } from '#/lib/piNetwork';
+import { prisma } from '#/lib/prisma';
 
-const prisma = new PrismaClient();
+const paymentSchema = z.object({
+  buyerId: z.string(),
+  sellerId: z.string(),
+  piAmount: z.number().positive(),
+  nairaAmount: z.number().positive(),
+  rate: z.number().positive(),
+  description: z.string().optional(),
+});
 
-export async function POST(req: Request): Promise<Response> {
+export async function POST(req: Request) {
   try {
-    const { paymentId, txid } = await req.json();
+    const body = await req.json();
+    const { buyerId, sellerId, piAmount, nairaAmount, rate, description } =
+      paymentSchema.parse(body);
 
-    if (!paymentId || !txid) {
-      return NextResponse.json(
-        { error: 'paymentId and txid are required' },
-        { status: 400 },
-      );
-    }
+    const paymentData = {
+      amount: piAmount,
+      memo: description || 'Payment for transaction',
+      metadata: { nairaAmount, rate, sellerId },
+      uid: buyerId,
+    };
 
-    // Additional validation (if needed)
-    if (typeof paymentId !== 'string' || typeof txid !== 'string') {
-      return NextResponse.json(
-        { error: 'paymentId and txid must be strings' },
-        { status: 400 },
-      );
-    }
+    const paymentId = await createPayment(paymentData);
 
-    const completedPayment = await pi.completePayment(paymentId, txid);
-
-    // Find the transaction by paymentId
-    const transaction = await prisma.transaction.findFirst({
-      where: { paymentId },
+    const transaction = await prisma.transaction.create({
+      data: {
+        buyerId,
+        sellerId,
+        piAmount,
+        nairaAmount,
+        rate,
+        description,
+        status: 'PENDING',
+        paymentId,
+      },
     });
 
-    if (!transaction) {
-      return NextResponse.json(
-        { error: 'Transaction not found' },
-        { status: 404 },
-      );
-    }
-
-    // Update the transaction
-    await prisma.transaction.update({
-      where: { id: transaction.id },
-      data: { status: 'CONFIRMED' },
-    });
-
-    return NextResponse.json({ completedPayment });
+    return NextResponse.json({ paymentId, transaction });
   } catch (error) {
-    console.error('Error handling POST request:', error);
+    console.error(error);
     return NextResponse.json(
-      { error: 'Failed to complete payment' },
+      { error: 'Failed to create payment' },
       { status: 500 },
     );
   }
