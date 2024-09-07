@@ -3,15 +3,18 @@ import React from 'react';
 import { RxAvatar } from 'react-icons/rx';
 
 import PageLogo from './page-logo';
+import { ThemeToggle } from './ThemeToggle';
 
 const Header = () => {
   return (
-    <div className="bg-background/95 supports-[backdrop-filter]:bg-background/60 sticky top-0 z-50 flex  h-16  w-full justify-between border-border/40 p-4 backdrop-blur">
-      {' '}
+    <div className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60 md:px-8">
       <PageLogo />
-      <Link href="/dashboard">
-        <RxAvatar className="size-full" />
-      </Link>
+      <div className="flex items-center space-x-4">
+        <ThemeToggle />
+        <Link href="/dashboard" className="rounded-full p-2 hover:bg-accent">
+          <RxAvatar className="h-8 w-8" />
+        </Link>
+      </div>
     </div>
   );
 };

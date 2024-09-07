@@ -7,11 +7,11 @@ import Navs from './navs';
 
 const PageHeader = () => {
   return (
-    <header className="fixed bottom-0 z-50 w-full rounded-t-2xl bg-green-300 pb-0 opacity-100 md:hidden">
-      <div className="nav-header flex justify-between  ">
+    <nav className="fixed bottom-0 left-0 right-0 z-50 bg-white shadow-lg md:relative md:bg-transparent md:shadow-none">
+      <div className="mx-auto max-w-md">
         <Navs items={marketingConfig.mainNav} />
       </div>
-    </header>
+    </nav>
   );
 };
 
