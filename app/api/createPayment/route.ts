@@ -1,16 +1,14 @@
 import { auth } from '@clerk/nextjs/server';
+import crypto from 'crypto';
 import { NextResponse } from 'next/server';
+import PiNetwork from 'pi-backend';
 import { z } from 'zod';
 
 import { prisma } from '#/lib/db';
-import { createPayment } from '#/lib/piNetwork';
 
-const paymentSchema = z.object({
-  sellerId: z.string(),
-  piAmount: z.number().positive(),
-  nairaAmount: z.number().positive(),
-  rate: z.number().positive(),
-  description: z.string().optional(),
+const createPaymentSchema = z.object({
+  amount: z.number().positive(),
+  memo: z.string().optional(),
 });
 
 export async function POST(req: Request) {
@@ -21,34 +19,35 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { sellerId, piAmount, nairaAmount, rate, description } =
-      paymentSchema.parse(body);
+    const { amount, memo } = createPaymentSchema.parse(body);
 
-    const paymentData = {
-      amount: piAmount,
-      memo: description || 'Payment for transaction',
-      metadata: { nairaAmount, rate, sellerId },
-      uid: userId,
-    };
+    const pi = new PiNetwork(
+      process.env.PI_API_KEY || '',
+      process.env.WALLET_PRIVATE_SEED || '',
+    );
 
-    const paymentId = await createPayment(paymentData);
+    const payment = await pi.createPayment({
+      amount,
+      memo: memo || '',
+      metadata: { userId },
+      uid: crypto.randomUUID(), // Add this line
+    });
 
-    const transaction = await prisma.transaction.create({
+    await prisma.transaction.create({
       data: {
         buyerId: userId,
-        sellerId,
-        piAmount,
-        nairaAmount,
-        rate,
-        description,
+        sellerId: 'PLACEHOLDER', // Replace with actual sellerId
+        piAmount: amount,
+        nairaAmount: 0, // Replace with actual nairaAmount
+        rate: 0, // Replace with actual rate
+        paymentId: payment,
         status: 'PENDING',
-        paymentId,
       },
     });
 
-    return NextResponse.json({ paymentId, transaction });
+    return NextResponse.json({ payment });
   } catch (error) {
-    console.error(error);
+    console.error('Payment creation error:', error);
     return NextResponse.json(
       { error: 'Failed to create payment' },
       { status: 500 },
