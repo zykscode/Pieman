@@ -67,7 +67,6 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo }) => {
       });
     }
   };
-
   const handleCompletePayment = async () => {
     try {
       const response = await apiClient.post('/api/completePayment', {
