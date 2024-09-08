@@ -10,7 +10,7 @@ import Sidebar from '#/components/Sidebar';
 import { TailwindIndicator } from '#/components/tailwind-indicator';
 import { ThemeProvider } from '#/components/theme-provider';
 import { Toaster } from '#/components/ui/toaster';
-import { UserProvider, WalletProvider } from '#/contexts/UserContext';
+import { AppProvider } from '#/contexts/UserContext';
 import { fontSans } from '#/lib/fonts';
 import { cn } from '#/lib/utils';
 
@@ -33,30 +33,28 @@ export default function RootLayout({
         )}
       >
         <ClerkProvider>
-          <UserProvider>
-            <WalletProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="system"
-                enableSystem
-                disableTransitionOnChange
-              >
-                <div className="flex min-h-screen">
-                  <Sidebar />
-                  <div className="flex-1 flex flex-col md:pl-64">
-                    <Header />
-                    <main className="flex-1 overflow-y-auto px-4 py-6 md:px-6">
-                      {children}
-                    </main>
-                    <BottomNav />
-                  </div>
+          <AppProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              <div className="flex min-h-screen">
+                <Sidebar />
+                <div className="flex-1 flex flex-col md:pl-64">
+                  <Header />
+                  <main className="flex-1 overflow-y-auto px-4 py-6 md:px-6">
+                    {children}
+                  </main>
+                  <BottomNav />
                 </div>
-                <Toaster />
-                <Analytics />
-                <TailwindIndicator />
-              </ThemeProvider>
-            </WalletProvider>
-          </UserProvider>
+              </div>
+              <Toaster />
+              <Analytics />
+              <TailwindIndicator />
+            </ThemeProvider>
+          </AppProvider>
         </ClerkProvider>
       </body>
     </html>
