@@ -1,3 +1,4 @@
+/* eslint-disable unused-imports/no-unused-vars */
 import { auth } from '@clerk/nextjs/server';
 import { TransactionStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
@@ -30,7 +31,7 @@ export async function POST(req: Request) {
 
     return NextResponse.json({ completedPayment });
   } catch (error) {
-    console.error(error);
+    console.error('Payment completion error:', error);
     return NextResponse.json(
       { error: 'Failed to complete payment' },
       { status: 500 },
