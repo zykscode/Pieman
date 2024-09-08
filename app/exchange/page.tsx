@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 
 import { Button } from '#/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
@@ -15,11 +15,11 @@ const ExchangePage = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const handleExchange = async () => {
-    if (!amount) {
+  const handleExchange = useCallback(async () => {
+    if (!amount || isNaN(parseFloat(amount)) || parseFloat(amount) <= 0) {
       toast({
         title: 'Error',
-        description: 'Please enter an amount',
+        description: 'Please enter a valid amount',
         variant: 'destructive',
       });
       return;
@@ -27,7 +27,7 @@ const ExchangePage = () => {
 
     setIsLoading(true);
     try {
-      const result = await createExchange(
+      await createExchange(
         exchangeType,
         parseFloat(amount),
         exchangeType === 'buy' ? 'NGN' : 'PI',
@@ -46,7 +46,11 @@ const ExchangePage = () => {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [amount, exchangeType, toast]);
+
+  const estimatedAmount = amount
+    ? parseFloat(amount) * (exchangeType === 'buy' ? 0.5 : 2)
+    : 0;
 
   return (
     <motion.div
@@ -83,9 +87,7 @@ const ExchangePage = () => {
             />
             <div className="text-sm">
               Estimated {exchangeType === 'buy' ? 'Pi' : 'Naira'}:{' '}
-              {amount
-                ? parseFloat(amount) * (exchangeType === 'buy' ? 0.5 : 2)
-                : 0}
+              {estimatedAmount}
             </div>
             <Button
               className="w-full"

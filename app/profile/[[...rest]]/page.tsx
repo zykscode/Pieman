@@ -16,11 +16,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
 import { useToast } from '#/components/ui/use-toast';
 import { fetchTransactions, fetchUserProfile, setAuthToken } from '#/lib/api';
 
+interface Profile {
+  phone?: string;
+  verificationStatus?: string;
+}
+
+interface Transaction {
+  description: string;
+  amount: string;
+}
+
 const ProfilePage = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const { getToken, signOut } = useAuth();
-  const [profile, setProfile] = useState<any>(null);
-  const [transactions, setTransactions] = useState<any[]>([]);
+  const [profile, setProfile] = useState<Profile | null>(null);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 

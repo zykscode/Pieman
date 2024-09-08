@@ -1,4 +1,3 @@
-/* eslint-disable tailwindcss/migration-from-tailwind-2 */
 /* eslint-disable react/no-unescaped-entities */
 
 'use client';

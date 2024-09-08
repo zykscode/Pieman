@@ -1,5 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
-
 'use client';
 
 import * as ToastPrimitives from '@radix-ui/react-toast';

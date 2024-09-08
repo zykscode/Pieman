@@ -15,17 +15,18 @@ export interface AuthResult {
   };
 }
 
-const PiAuth = () => {
+interface Payment {
+  from_address: string;
+  to_address: string;
+}
+
+const PiAuth: React.FC = () => {
   const { toast } = useToast();
   const Pi = usePiNetwork(process.env.NODE_ENV !== 'production');
 
-  const authMutation = useMutation({
-    mutationFn: async (authResult: AuthResult) => {
-      const response = await apiClient.post('/api/wallet/signin', {
-        authResult,
-      });
-      return response.data;
-    },
+  const authMutation = useMutation<unknown, Error, AuthResult>({
+    mutationFn: (authResult) =>
+      apiClient.post('/api/wallet/signin', { authResult }),
     onSuccess: () => {
       toast({
         title: 'Authentication successful',
@@ -37,11 +38,18 @@ const PiAuth = () => {
       toast({
         variant: 'destructive',
         title: 'Authentication failed',
-        description:
-          error instanceof Error ? error.message : 'An unknown error occurred',
+        description: error.message || 'An unknown error occurred',
       });
     },
   });
+
+  const onIncompletePaymentFound = (payment: Payment) => {
+    toast({
+      variant: 'destructive',
+      title: 'Incomplete payment found',
+      description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
+    });
+  };
 
   const authenticate = async () => {
     if (!Pi) return;
@@ -66,17 +74,9 @@ const PiAuth = () => {
     }
   };
 
-  const onIncompletePaymentFound = (payment: any) => {
-    toast({
-      variant: 'destructive',
-      title: 'Incomplete payment found',
-      description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
-    });
-  };
-
   return (
-    <Button onClick={authenticate} disabled={authMutation.isLoading}>
-      {authMutation.isLoading
+    <Button onClick={authenticate} disabled={authMutation.isPending}>
+      {authMutation.isPending
         ? 'Authenticating...'
         : 'Authenticate with Pi Network'}
     </Button>

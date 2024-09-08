@@ -9,9 +9,18 @@ import { Button } from '#/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
 import { fetchTransactions, fetchWalletBalance } from '#/lib/api';
 
+// Add this interface above the component
+interface Transaction {
+  id: string;
+  type: string;
+  amount: number;
+  currency: string;
+  createdAt: string;
+}
+
 const WalletPage = () => {
   const [balance, setBalance] = useState({ pi: 0, naira: 0 });
-  const [transactions, setTransactions] = useState([]);
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -84,7 +93,7 @@ const WalletPage = () => {
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
-              {transactions.map((tx: any) => (
+              {transactions.map((tx: Transaction) => (
                 <li key={tx.id} className="flex justify-between items-center">
                   <span>{tx.type}</span>
                   <span>

@@ -53,7 +53,13 @@ export const createExchange = async (
   }
 };
 
-export const updateUserProfile = async (userData: any) => {
+interface UserProfileData {
+  name?: string;
+  email?: string;
+  // Add other relevant fields
+}
+
+export const updateUserProfile = async (userData: UserProfileData) => {
   try {
     const response = await api.put('/user/profile', userData);
     return response.data;

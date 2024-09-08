@@ -1,5 +1,3 @@
-/* eslint-disable tailwindcss/no-custom-classname */
-
 'use client';
 
 import React from 'react';
