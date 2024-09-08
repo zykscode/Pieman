@@ -5,6 +5,7 @@ import PiNetwork from 'pi-backend';
 import { z } from 'zod';
 
 import { prisma } from '#/lib/db';
+import { PI_API_KEY, PI_WALLET_PRIVATE_SEED } from '#/lib/piNetwork';
 
 const createPaymentSchema = z.object({
   amount: z.number().positive(),
@@ -21,10 +22,8 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { amount, memo } = createPaymentSchema.parse(body);
 
-    const api = process.env.PI_API_KEY!;
-    const walletPrivateSeed = process.env.PI_WALLET_PRIVATE_SEED!;
     // Initialize PiNetwork SDK
-    const pi = new PiNetwork(api, walletPrivateSeed);
+    const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_SEED);
 
     const payment = await pi.createPayment({
       amount,

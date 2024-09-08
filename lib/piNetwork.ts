@@ -12,10 +12,12 @@ interface PaymentData {
   uid: string;
 }
 
-const api = process.env.PI_API_KEY!;
-const walletPrivateSeed = process.env.PI_WALLET_PRIVATE_SEED!;
+export const PI_API_KEY =
+  'tprjoipbmycfphacmeocljtu3pbwoghujrkqiifuim32ogjwiehy0w2pypy2efru';
+export const PI_WALLET_PRIVATE_SEED =
+  'SCR6OLW5T5HUF6Y5Q52UZ7JH2LNJ4YQKNSHZZFS4WQXYYL22JG72LNET';
 // Initialize PiNetwork SDK
-const pi = new PiNetwork(api, walletPrivateSeed);
+const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_SEED);
 
 export async function createPayment(paymentData: PaymentData): Promise<string> {
   return pi.createPayment(paymentData);
