@@ -21,10 +21,10 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { amount, memo } = createPaymentSchema.parse(body);
 
-    const pi = new PiNetwork(
-      process.env.PI_API_KEY || '',
-      process.env.WALLET_PRIVATE_SEED || '',
-    );
+    const api = process.env.PI_API_KEY!;
+    const walletPrivateSeed = PI_WALLET_PRIVATE_SEED!;
+    // Initialize PiNetwork SDK
+    const pi = new PiNetwork(api, walletPrivateSeed);
 
     const payment = await pi.createPayment({
       amount,
