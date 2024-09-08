@@ -1,7 +1,6 @@
 'use client';
 
 import { useUser } from '@clerk/nextjs';
-import { User } from '@clerk/nextjs/server';
 import { motion } from 'framer-motion';
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
@@ -18,13 +17,15 @@ interface Trader {
 const Hero = lazy(() => import('../components/Hero'));
 const Features = lazy(() => import('../components/Features'));
 const FirstTimeVisitor = lazy(() => import('#/components/FirstTimeVisitor'));
-const ReturningUserDashboard = lazy<
-  React.ComponentType<{
-    user: User;
-    balance: string | number;
-    address: string;
-  }>
->(() => import('#/components/ReturningUserDashboard'));
+const ReturningUserDashboard = lazy(() =>
+  import('#/components/ReturningUserDashboard').then((mod) => ({
+    default: mod.default as React.ComponentType<{
+      user: ReturnType<typeof useUser>['user'];
+      balance: string | number;
+      address: string;
+    }>,
+  })),
+);
 const TopTradersCard = lazy(() => import('#/components/TopTradersCard'));
 
 const Page = () => {
