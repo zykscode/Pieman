@@ -1,13 +1,10 @@
-'use client';
-
-/* eslint-disable react/button-has-type */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
-import axios from 'axios';
+import { useMutation } from '@tanstack/react-query';
 import React from 'react';
 
+import { Button } from '#/components/ui/button';
 import { useToast } from '#/components/ui/use-toast';
 import { usePiNetwork } from '#/hooks/usePiNetwork';
+import apiClient from '#/lib/api-client';
 
 export interface AuthResult {
   accessToken: string;
@@ -18,85 +15,71 @@ export interface AuthResult {
   };
 }
 
-const PiAuth = ({
-  setAuthInfo,
-  authInfo,
-}: {
-  setAuthInfo: any;
-  authInfo: any;
-}) => {
+const PiAuth = () => {
   const { toast } = useToast();
   const Pi = usePiNetwork(process.env.NODE_ENV !== 'production');
 
-  const handleAuthenticationError = (error: any, defaultMessage: string) => {
-    const errorMessage =
-      error instanceof Error ? error.message : 'An unknown error occurred';
-    toast({
-      variant: 'destructive',
-      title: defaultMessage,
-      description: errorMessage,
-    });
-  };
-
-  const verifyAuthenticationWithServer = async (accessToken: string) => {
-    try {
-      const response = await axios.get('https://api.minepi.com/v2/me', {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-        },
+  const authMutation = useMutation({
+    mutationFn: async (authResult: AuthResult) => {
+      const response = await apiClient.post('/api/wallet/signin', {
+        authResult,
       });
-
-      const verifiedUser = await response.data;
+      return response.data;
+    },
+    onSuccess: () => {
       toast({
-        variant: 'default',
-        title: 'Server verified user',
-        description: `User ${verifiedUser.username} has been verified by the server.`,
+        title: 'Authentication successful',
+        description:
+          'You have been successfully authenticated with Pi Network.',
       });
-
-      setAuthInfo(verifiedUser);
-    } catch (error) {
-      handleAuthenticationError(error, 'Server verification error');
-      setAuthInfo(null);
-    }
-  };
+    },
+    onError: (error) => {
+      toast({
+        variant: 'destructive',
+        title: 'Authentication failed',
+        description:
+          error instanceof Error ? error.message : 'An unknown error occurred',
+      });
+    },
+  });
 
   const authenticate = async () => {
     if (!Pi) return;
 
     const scopes = ['username', 'payments', 'wallet_address'];
 
-    const handleIncompletePayment = (payment: any) => {
-      toast({
-        variant: 'destructive',
-        title: 'Incomplete payment found',
-        description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
-      });
-    };
-
     try {
-      const auth = await Pi.authenticate(scopes, handleIncompletePayment);
-      if (auth) {
-        setAuthInfo(auth);
-        toast({
-          variant: 'default',
-          title: 'Authentication successful',
-          description: `Authenticated as ${auth.user.username}`,
-        });
-        await verifyAuthenticationWithServer(auth.accessToken);
+      const authResult = await Pi.authenticate(
+        scopes,
+        onIncompletePaymentFound,
+      );
+      if (authResult) {
+        authMutation.mutate(authResult);
       }
     } catch (error) {
-      handleAuthenticationError(error, 'Authentication failed');
+      toast({
+        variant: 'destructive',
+        title: 'Authentication failed',
+        description:
+          error instanceof Error ? error.message : 'An unknown error occurred',
+      });
     }
   };
 
+  const onIncompletePaymentFound = (payment: any) => {
+    toast({
+      variant: 'destructive',
+      title: 'Incomplete payment found',
+      description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
+    });
+  };
+
   return (
-    <div className="w-full bg-yellow-800">
-      {!authInfo ? (
-        <button onClick={authenticate}>Authenticate with Pi Network</button>
-      ) : (
-        <p>Authenticated as: {authInfo.username}</p>
-      )}
-    </div>
+    <Button onClick={authenticate} disabled={authMutation.isLoading}>
+      {authMutation.isLoading
+        ? 'Authenticating...'
+        : 'Authenticate with Pi Network'}
+    </Button>
   );
 };
 

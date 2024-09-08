@@ -1,6 +1,8 @@
 import { auth } from '@clerk/nextjs';
 import { NextResponse } from 'next/server';
 
+import { prisma } from '#/lib/db';
+
 export async function GET() {
   try {
     const { userId } = auth();
@@ -8,13 +10,16 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // TODO: Fetch wallet balance from your database
-    const walletBalance = {
-      pi: 100,
-      naira: 50000,
-    };
+    const wallet = await prisma.wallet.findUnique({
+      where: { userId },
+      select: { balance: true },
+    });
 
-    return NextResponse.json(walletBalance);
+    if (!wallet) {
+      return NextResponse.json({ error: 'Wallet not found' }, { status: 404 });
+    }
+
+    return NextResponse.json({ balance: wallet.balance });
   } catch (error) {
     console.error('Error fetching wallet balance:', error);
     return NextResponse.json(

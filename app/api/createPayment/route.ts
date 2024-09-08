@@ -1,30 +1,41 @@
-// app/api/createPayment/route.ts
-
-import { PrismaClient } from '@prisma/client';
+import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
+import { z } from 'zod';
 
+import { prisma } from '#/lib/db';
 import pi from '#/utils/piNetwork';
 
-const prisma = new PrismaClient();
+const paymentSchema = z.object({
+  sellerId: z.string(),
+  piAmount: z.number().positive(),
+  nairaAmount: z.number().positive(),
+  rate: z.number().positive(),
+  description: z.string().optional(),
+});
 
 export async function POST(req: Request) {
-  const { buyerId, sellerId, piAmount, nairaAmount, rate, description } =
-    await req.json();
-
   try {
+    const { userId } = auth();
+    if (!userId) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { sellerId, piAmount, nairaAmount, rate, description } =
+      paymentSchema.parse(body);
+
     const paymentData = {
       amount: piAmount,
       memo: description || 'Payment for transaction',
       metadata: { nairaAmount, rate, sellerId },
-      uid: buyerId,
+      uid: userId,
     };
 
     const paymentId = await pi.createPayment(paymentData);
 
-    // Store payment details in your database
     const transaction = await prisma.transaction.create({
       data: {
-        buyerId,
+        buyerId: userId,
         sellerId,
         piAmount,
         nairaAmount,
