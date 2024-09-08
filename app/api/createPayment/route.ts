@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { prisma } from '#/lib/db';
-import pi from '#/utils/piNetwork';
+import { createPayment } from '#/lib/piNetwork';
 
 const paymentSchema = z.object({
   sellerId: z.string(),
@@ -31,7 +31,7 @@ export async function POST(req: Request) {
       uid: userId,
     };
 
-    const paymentId = await pi.createPayment(paymentData);
+    const paymentId = await createPayment(paymentData);
 
     const transaction = await prisma.transaction.create({
       data: {

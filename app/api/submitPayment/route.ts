@@ -3,11 +3,10 @@ import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
 import { prisma } from '#/lib/db';
-import { completePayment } from '#/lib/piNetwork';
+import { submitPayment } from '#/lib/piNetwork';
 
-const completePaymentSchema = z.object({
+const submitPaymentSchema = z.object({
   paymentId: z.string(),
-  txid: z.string(),
 });
 
 export async function POST(req: Request) {
@@ -18,20 +17,20 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { paymentId, txid } = completePaymentSchema.parse(body);
+    const { paymentId } = submitPaymentSchema.parse(body);
 
-    const completedPayment = await completePayment(paymentId, txid);
+    const txid = await submitPayment(paymentId);
 
     await prisma.transaction.update({
       where: { paymentId },
-      data: { status: 'COMPLETED' },
+      data: { status: 'CONFIRMED', txid },
     });
 
-    return NextResponse.json({ completedPayment });
+    return NextResponse.json({ txid });
   } catch (error) {
     console.error(error);
     return NextResponse.json(
-      { error: 'Failed to complete payment' },
+      { error: 'Failed to submit payment' },
       { status: 500 },
     );
   }

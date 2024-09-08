@@ -100,8 +100,9 @@ model Transaction {
   escrowWallet      EscrowWallet?       @relation(fields: [escrowWalletId], references: [id])
   EscrowTransaction EscrowTransaction[]
 
-  buyer  User @relation("UserAsBuyer", fields: [buyerId], references: [id])
-  seller User @relation("UserAsSeller", fields: [sellerId], references: [id])
+  buyer  User    @relation("UserAsBuyer", fields: [buyerId], references: [id])
+  seller User    @relation("UserAsSeller", fields: [sellerId], references: [id])
+  txid   String?
 
   @@index([buyerId])
   @@index([sellerId])

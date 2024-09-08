@@ -1,14 +1,9 @@
 'use client';
 
-/* eslint-disable @typescript-eslint/naming-convention */
-/* eslint-disable unused-imports/no-unused-vars */
-/* eslint-disable @typescript-eslint/no-unused-vars */
-/* eslint-disable react/button-has-type */
-
-import type PiNetwork from 'pi-backend'; // Import PiNetwork and PaymentDTO
 import React, { useState } from 'react';
 
 import { useToast } from '#/components/ui/use-toast';
+import apiClient from '#/lib/api-client';
 
 interface PaymentComponentProps {
   userInfo: {
@@ -16,88 +11,79 @@ interface PaymentComponentProps {
     username: string;
     wallet_address?: string;
   };
-  piInstance: PiNetwork;
 }
 
-const PaymentComponent: React.FC<PaymentComponentProps> = ({
-  userInfo,
-  piInstance,
-}) => {
+const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo }) => {
   const { toast } = useToast();
   const buyerId = userInfo.uid!;
-  const [sellerId, _setSellerId] = useState<string>('');
+  const [sellerId, setSellerId] = useState<string>('');
   const [piAmount, setPiAmount] = useState<number>(0);
-  const [nairaAmount, _blanksetNairaAmount] = useState<number>(0);
-  const [rate, _setRate] = useState<number>(0);
+  const [nairaAmount, setNairaAmount] = useState<number>(0);
+  const [rate, setRate] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
   const [paymentId, setPaymentId] = useState<string | null>(null);
   const [txid, setTxid] = useState<string | null>(null);
 
   const handleCreatePayment = async () => {
     try {
-      const paymentData = {
-        amount: piAmount,
-        memo: description,
-        metadata: { nairaAmount, rate, sellerId },
-        uid: buyerId,
-      };
-
-      const paymentIdhere = await piInstance.createPayment(paymentData);
-      setPaymentId(paymentIdhere);
+      const response = await apiClient.post('/api/createPayment', {
+        sellerId,
+        piAmount,
+        nairaAmount,
+        rate,
+        description,
+      });
+      setPaymentId(response.data.paymentId);
       toast({
         variant: 'default',
         title: 'Payment Created',
-        description: `Payment ID: ${paymentId}`,
+        description: `Payment ID: ${response.data.paymentId}`,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         variant: 'destructive',
         title: 'Failed to create payment',
-        description: errorMessage,
+        description: 'An error occurred while creating the payment.',
       });
     }
   };
 
   const handleSubmitPayment = async () => {
     try {
-      const txidhere = await piInstance.submitPayment(paymentId!);
-      setTxid(txidhere);
+      const response = await apiClient.post('/api/submitPayment', {
+        paymentId,
+      });
+      setTxid(response.data.txid);
       toast({
         variant: 'default',
         title: 'Payment Submitted',
-        description: `Transaction ID: ${txid}`,
+        description: `Transaction ID: ${response.data.txid}`,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         variant: 'destructive',
         title: 'Failed to submit payment',
-        description: errorMessage,
+        description: 'An error occurred while submitting the payment.',
       });
     }
   };
 
   const handleCompletePayment = async () => {
     try {
-      const completedPayment = await piInstance.completePayment(
-        paymentId!,
-        txid!,
-      );
+      const response = await apiClient.post('/api/completePayment', {
+        paymentId,
+        txid,
+      });
       toast({
         variant: 'default',
         title: 'Payment Completed',
-        description: `Payment: ${completedPayment.identifier}`,
+        description: `Payment: ${response.data.completedPayment.identifier}`,
       });
     } catch (error) {
-      const errorMessage =
-        error instanceof Error ? error.message : 'An unknown error occurred';
       toast({
         variant: 'destructive',
         title: 'Failed to complete payment',
-        description: errorMessage,
+        description: 'An error occurred while completing the payment.',
       });
     }
   };
@@ -105,30 +91,30 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({
   return (
     <div>
       <input type="text" value={buyerId} readOnly placeholder="Buyer ID" />
-      {/* <input
+      <input
         type="text"
         value={sellerId}
         onChange={(e) => setSellerId(e.target.value)}
         placeholder="Seller ID"
-      /> */}
+      />
       <input
         type="number"
         value={piAmount}
         onChange={(e) => setPiAmount(Number(e.target.value))}
         placeholder="Pi Amount"
       />
-      {/* <input
+      <input
         type="number"
         value={nairaAmount}
         onChange={(e) => setNairaAmount(Number(e.target.value))}
         placeholder="Naira Amount"
-      /> */}
-      {/* <input
+      />
+      <input
         type="number"
         value={rate}
         onChange={(e) => setRate(Number(e.target.value))}
         placeholder="Rate"
-      /> */}
+      />
       <input
         type="text"
         value={description}
