@@ -13,7 +13,7 @@ interface PaymentData {
 }
 
 const api = process.env.PI_API_KEY!;
-const walletPrivateSeed = PI_WALLET_PRIVATE_SEED!;
+const walletPrivateSeed = process.env.PI_WALLET_PRIVATE_SEED!;
 // Initialize PiNetwork SDK
 const pi = new PiNetwork(api, walletPrivateSeed);
 
