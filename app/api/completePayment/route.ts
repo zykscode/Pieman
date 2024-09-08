@@ -1,4 +1,5 @@
 import { auth } from '@clerk/nextjs/server';
+import { TransactionStatus } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { z } from 'zod';
 
@@ -24,7 +25,7 @@ export async function POST(req: Request) {
 
     await prisma.transaction.update({
       where: { paymentId },
-      data: { status: 'COMPLETED' },
+      data: { status: TransactionStatus.CONFIRMED },
     });
 
     return NextResponse.json({ completedPayment });
