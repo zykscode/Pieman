@@ -11,7 +11,7 @@ const Header = () => {
       <PageLogo />
       <div className="flex items-center space-x-4">
         <ThemeToggle />
-        <Link href="/dashboard" className="rounded-full p-2 hover:bg-accent">
+        <Link href="/profile" className="rounded-full p-2 hover:bg-accent">
           <RxAvatar className="h-8 w-8" />
         </Link>
       </div>
