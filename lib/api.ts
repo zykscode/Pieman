@@ -52,3 +52,31 @@ export async function fetchTopTraders(limit = 10) {
     throw new Error('Failed to fetch top traders');
   }
 }
+
+// Add these new methods for Pi Network ads
+export const isAdReady = async (
+  adType: 'banner' | 'interstitial' | 'rewarded',
+): Promise<boolean> => {
+  if (typeof window !== 'undefined' && window.Pi) {
+    return window.Pi.Ads.isAdReady(adType);
+  }
+  throw new Error('Pi SDK not available');
+};
+
+export const requestAd = async (
+  adType: 'banner' | 'interstitial' | 'rewarded',
+): Promise<void> => {
+  if (typeof window !== 'undefined' && window.Pi) {
+    return window.Pi.Ads.requestAd(adType);
+  }
+  throw new Error('Pi SDK not available');
+};
+
+export const showAd = async (
+  adType: 'banner' | 'interstitial' | 'rewarded',
+): Promise<void> => {
+  if (typeof window !== 'undefined' && window.Pi) {
+    return window.Pi.Ads.showAd(adType);
+  }
+  throw new Error('Pi SDK not available');
+};
