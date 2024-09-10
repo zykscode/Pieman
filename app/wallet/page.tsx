@@ -1,49 +1,76 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { motion } from 'framer-motion';
-import Link from 'next/link';
-import React, { useEffect, useState } from 'react';
-import { FaExchangeAlt, FaHistory, FaWallet } from 'react-icons/fa';
+import { APIUserScopes } from '@pinetwork-js/api-typing';
+import { useEffect, useState } from 'react';
 
-import { Button } from '#/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
-import { fetchTransactions, fetchWalletBalance } from '#/lib/api';
-
-// Add this interface above the component
-interface Transaction {
-  id: string;
-  type: string;
-  amount: number;
-  currency: string;
-  createdAt: string;
-}
+// Add this type definition at the top of your file
+type UserDetails = {
+  username: string;
+  // Add other properties as needed
+};
 
 const WalletPage = () => {
-  const [balance, setBalance] = useState({ pi: 0, naira: 0 });
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const [balanceData, transactionsData] = await Promise.all([
-          fetchWalletBalance(),
-          fetchTransactions(5),
-        ]);
-        setBalance(balanceData);
-        setTransactions(transactionsData);
-      } catch (error) {
-        console.error('Failed to fetch wallet data:', error);
-      } finally {
-        setIsLoading(false);
+    let isMounted = true;
+
+    const initializePi = () => {
+      if (typeof window !== 'undefined' && window.Pi) {
+        window.Pi.init({ version: '2.0' })
+          .then(() => {
+            if (isMounted) authenticate();
+          })
+          .catch((error) => {
+            console.error('Failed to initialize Pi:', error);
+            if (isMounted) setError('Failed to initialize Pi SDK');
+          });
+      } else {
+        if (isMounted) setError('Pi SDK not available');
       }
     };
 
-    fetchData();
+    const authenticate = () => {
+      const scopes: APIUserScopes[] = ['username'];
+      window.Pi.authenticate(scopes, onIncompletePaymentFound)
+        .then(handleAuthSuccess)
+        .catch(handleAuthError);
+    };
+
+    const handleAuthSuccess = (authResult: any) => {
+      if (!isMounted) return;
+      // Fetch user details...
+      // Update state...
+    };
+
+    const handleAuthError = (error: any) => {
+      if (!isMounted) return;
+      console.error('Failed to authenticate user:', error);
+      setError('An error occurred while authenticating. Please try again.');
+      setIsLoading(false);
+    };
+
+    initializePi();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
+  function onIncompletePaymentFound(payment: any) {
+    // Handle incomplete payment
+    console.log('Incomplete payment found:', payment);
+  }
+
   if (isLoading) {
-    return <div>Loading...</div>;
+    return <div>Authenticating...</div>;
+  }
+
+  if (error) {
+    return <div className="text-red-500">{error}</div>;
   }
 
   return (
@@ -52,62 +79,24 @@ const WalletPage = () => {
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
     >
-      <h1 className="text-2xl font-bold mb-6">Wallet</h1>
-      <div className="space-y-6">
+      <h1 className="text-2xl font-bold mb-6">User Profile</h1>
+      {userDetails && (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
-              <FaWallet className="mr-2" /> Balance
+              <FaUser className="mr-2" /> User Details
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="flex justify-between">
-              <div>
-                <p className="text-sm text-muted-foreground">Pi Balance</p>
-                <p className="text-2xl font-bold">{balance.pi} Pi</p>
-              </div>
-              <div>
-                <p className="text-sm text-muted-foreground">Naira Balance</p>
-                <p className="text-2xl font-bold">₦{balance.naira}</p>
-              </div>
+            <div className="space-y-2">
+              <p>
+                <strong>Username:</strong> {userDetails.username}
+              </p>
+              {/* Add other user details here */}
             </div>
           </CardContent>
         </Card>
-
-        <div className="flex space-x-4">
-          <Button className="flex-1" asChild>
-            <Link href="/exchange">
-              <FaExchangeAlt className="mr-2" /> Exchange
-            </Link>
-          </Button>
-          <Button className="flex-1" variant="outline">
-            Add Funds
-          </Button>
-        </div>
-
-        <Card>
-          <CardHeader>
-            <CardTitle className="flex items-center">
-              <FaHistory className="mr-2" /> Recent Transactions
-            </CardTitle>
-          </CardHeader>
-          <CardContent>
-            <ul className="space-y-2">
-              {transactions.map((tx: Transaction) => (
-                <li key={tx.id} className="flex justify-between items-center">
-                  <span>{tx.type}</span>
-                  <span>
-                    {tx.amount} {tx.currency}
-                  </span>
-                  <span className="text-sm text-muted-foreground">
-                    {new Date(tx.createdAt).toLocaleDateString()}
-                  </span>
-                </li>
-              ))}
-            </ul>
-          </CardContent>
-        </Card>
-      </div>
+      )}
     </motion.div>
   );
 };

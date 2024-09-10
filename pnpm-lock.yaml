@@ -26,6 +26,9 @@ importers:
       '@next-auth/prisma-adapter':
         specifier: ^1.0.7
         version: 1.0.7(@prisma/client@5.18.0(prisma@5.18.0))(next-auth@4.24.7(next@14.2.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react@18.3.1))
+      '@pinetwork-js/api-typing':
+        specifier: ^0.7.0
+        version: 0.7.0
       '@pinetwork-js/sdk':
         specifier: ^0.7.0
         version: 0.7.0
@@ -1063,6 +1066,9 @@ packages:
 
   '@panva/hkdf@1.2.1':
     resolution: {integrity: sha512-6oclG6Y3PiDFcoyk8srjLfVKyMfVCKJ27JwNPViuXziFpmdz+MZnZN/aKY0JGXgYuO/VghU0jcOAZgWXZ1Dmrw==}
+
+  '@pinetwork-js/api-typing@0.7.0':
+    resolution: {integrity: sha512-7sb/ZF6rREQ+n5vbJbDH9DXjTqO4afU5c5e8MNwYN8vhe7xdJsPPYvY9mZnVMa7IuJ4BTjZHabU6FEJ6T8khUQ==}
 
   '@pinetwork-js/sdk@0.7.0':
     resolution: {integrity: sha512-1P8Fuk9IPSZ40tWtp52t9nvj09H0/raxtcTT1uhNmUfMCkDAkECOdRV1TsYeNbiXgBQrjq88OdTU/PVfqUA9Ew==}
@@ -5949,6 +5955,8 @@ snapshots:
       fastq: 1.17.1
 
   '@panva/hkdf@1.2.1': {}
+
+  '@pinetwork-js/api-typing@0.7.0': {}
 
   '@pinetwork-js/sdk@0.7.0':
     dependencies:

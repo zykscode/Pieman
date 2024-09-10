@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import { useUser } from '@clerk/nextjs';
@@ -6,13 +7,6 @@ import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import LoadingSpinner from '#/components/LoadingSpinner';
 import { useWallet } from '#/contexts/UserContext';
-
-interface Trader {
-  id: number;
-  username: string;
-  rate: number;
-  type: 'buyer' | 'seller';
-}
 
 const Hero = lazy(() => import('../components/Hero'));
 const Features = lazy(() => import('../components/Features'));
@@ -23,6 +17,7 @@ const ReturningUserDashboard = lazy(() =>
       user: ReturnType<typeof useUser>['user'];
       balance: string | number;
       address: string;
+      onRefresh: () => void;
     }>,
   })),
 );
@@ -30,20 +25,25 @@ const TopTradersCard = lazy(() => import('#/components/TopTradersCard'));
 
 const Page = () => {
   const [isFirstTimeVisitor, setIsFirstTimeVisitor] = useState(false);
-  const { isSignedIn, user } = useUser();
-  const { balance, address } = useWallet();
-  const [topTraders, setTopTraders] = useState<Trader[]>([]);
+  const { isSignedIn, user, isLoaded } = useUser();
+  const { balance, address, refreshWallet } = useWallet();
+  const [topTraders, setTopTraders] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  const fetchTopTraders = useCallback(async () => {
-    // TODO: Replace this with actual API call to fetch top traders
-    const mockTopTraders: Trader[] = [
-      { id: 1, username: 'trader1', rate: 500, type: 'buyer' },
-      { id: 2, username: 'trader2', rate: 495, type: 'seller' },
-      { id: 3, username: 'trader3', rate: 505, type: 'buyer' },
-      { id: 4, username: 'trader4', rate: 498, type: 'seller' },
-    ];
-    setTopTraders(mockTopTraders);
-  }, []);
+  const loadData = useCallback(async () => {
+    setIsLoading(true);
+    setError(null);
+    try {
+      const traders = await fetchTopTraders();
+      setTopTraders(traders);
+      await refreshWallet();
+    } catch (err) {
+      setError('Failed to load data. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  }, [refreshWallet]);
 
   useEffect(() => {
     const isReturningUser = localStorage.getItem('isReturningUser');
@@ -52,8 +52,12 @@ const Page = () => {
       localStorage.setItem('isReturningUser', 'true');
     }
 
-    fetchTopTraders();
-  }, [fetchTopTraders]);
+    if (isLoaded) {
+      loadData();
+    }
+  }, [isLoaded, loadData]);
+
+  if (!isLoaded) return <LoadingSpinner />;
 
   return (
     <motion.div
@@ -62,11 +66,19 @@ const Page = () => {
       transition={{ duration: 0.5 }}
       className="flex grow flex-col"
     >
+      {error && (
+        <div
+          className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+          role="alert"
+        >
+          <span className="block sm:inline">{error}</span>
+        </div>
+      )}
       <Suspense fallback={<LoadingSpinner />}>
         {isFirstTimeVisitor ? (
           <FirstTimeVisitor />
         ) : (
-          <div className="space-y-8">
+          <div className="space-y-8 p-4 md:p-8">
             <Hero />
             {isSignedIn ? (
               <Suspense fallback={<LoadingSpinner />}>
@@ -74,12 +86,13 @@ const Page = () => {
                   user={user}
                   balance={balance}
                   address={address!}
+                  onRefresh={loadData}
                 />
               </Suspense>
             ) : (
               <Features />
             )}
-            <TopTradersCard traders={topTraders} />
+            <TopTradersCard traders={topTraders} isLoading={isLoading} />
           </div>
         )}
       </Suspense>

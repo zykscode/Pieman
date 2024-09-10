@@ -151,3 +151,34 @@ export type UserSubscriptionPlan = SubscriptionPlan &
     stripeCurrentPeriodEnd: number;
     isPro: boolean;
   };
+
+export interface PiNetwork {
+  authenticate: () => Promise<AuthResult>;
+  makePayment: (payment: PaymentData) => Promise<PaymentResult>;
+  openShareDialog: (title: string, message: string) => Promise<void>;
+  createPayment: (paymentData: PaymentData) => Promise<string>;
+  completePayment: (paymentId: string, txid: string) => Promise<PaymentResult>;
+  cancelPayment: (paymentId: string) => Promise<void>;
+  getUserProfile: () => Promise<UserProfile>;
+}
+
+interface AuthResult {
+  accessToken: string;
+  user: UserProfile;
+}
+
+interface UserProfile {
+  uid: string;
+  username: string;
+}
+
+interface PaymentData {
+  amount: number;
+  memo: string;
+  metadata?: object;
+}
+
+interface PaymentResult {
+  status: 'COMPLETED' | 'CANCELLED' | 'FAILED';
+  txid?: string;
+}

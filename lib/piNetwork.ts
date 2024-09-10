@@ -1,49 +1,45 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import PiNetwork from 'pi-backend';
+import { APIUserScopes } from '@pinetwork-js/api-typing';
+import { APIPartialPayment } from '@pinetwork-js/api-typing';
+import { Pi } from '@pinetwork-js/sdk';
+import { AuthResult } from '@pinetwork-js/sdk/build/types';
 
-interface PaymentData {
-  amount: number;
-  memo: string;
-  metadata: {
-    nairaAmount: number;
-    rate: number;
-    sellerId: string;
-  };
-  uid: string;
-}
+export const initPiNetwork = () => {
+  if (typeof window !== 'undefined') {
+    Pi.init({ version: '2.0', sandbox: process.env.NODE_ENV !== 'production' });
+  }
+};
 
-export const PI_API_KEY =
-  'tprjoipbmycfphacmeocljtu3pbwoghujrkqiifuim32ogjwiehy0w2pypy2efru';
-export const PI_WALLET_PRIVATE_SEED =
-  'SCR6OLW5T5HUF6Y5Q52UZ7JH2LNJ4YQKNSHZZFS4WQXYYL22JG72LNET';
-// Initialize PiNetwork SDK
-const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_SEED);
+export const authenticate = async (
+  scopes: APIUserScopes[],
+): Promise<AuthResult> => {
+  return Pi.authenticate(scopes, onIncompletePaymentFound);
+};
 
-export async function createPayment(paymentData: PaymentData): Promise<string> {
-  return pi.createPayment(paymentData);
-}
+export const createPayment = (
+  paymentData: APIPartialPayment,
+  callbacks: {
+    onReadyForServerApproval: (paymentId: string) => void;
+    onReadyForServerCompletion: (paymentId: string, txid: string) => void;
+    onCancel: (paymentId: string) => void;
+    onError: (error: Error, payment?: any) => void;
+  },
+) => {
+  return Pi.createPayment(paymentData, callbacks);
+};
 
-export async function submitPayment(paymentId: string): Promise<string> {
-  return pi.submitPayment(paymentId);
-}
+export const getWalletInfo = async () => {
+  const scopes = ['username', 'payments', 'wallet_address'].join(' ');
+  const userInfo = await Pi.openShareDialog(
+    'Share Wallet Info',
+    `The app is requesting access to: ${scopes}`,
+  );
+  return userInfo;
+};
 
-export async function completePayment(
-  paymentId: string,
-  txid: string,
-): Promise<any> {
-  return pi.completePayment(paymentId, txid);
-}
+const onIncompletePaymentFound = (payment: any) => {
+  console.log('Incomplete payment found:', payment);
+  // Handle incomplete payment
+};
 
-export async function getPayment(paymentId: string): Promise<any> {
-  return pi.getPayment(paymentId);
-}
-
-export async function cancelPayment(paymentId: string): Promise<any> {
-  return pi.cancelPayment(paymentId);
-}
-
-export async function getIncompleteServerPayments(): Promise<any[]> {
-  return pi.getIncompleteServerPayments();
-}
-
-export default pi;
+export { Pi };

@@ -9,24 +9,25 @@ datasource db {
 }
 
 model User {
-  id               String        @id @default(cuid())
-  name             String?
-  email            String        @unique
-  emailVerified    DateTime?
-  password         String?
-  image            String?
-  role             UserRole      @default(USER)
-  archived         Boolean       @default(false)
-  ratings          Rating[]
-  transactions     Transaction[] @relation("UserAsBuyer")
-  soldTransactions Transaction[] @relation("UserAsSeller")
-  accounts         Account[]
-  sessions         Session[]
-  archivedts       DateTime?
-  wallet           Wallet?
-  failedAttempts   Int           @default(0)
-  lockedUntil      DateTime?
-  username         String?       @unique
+  id                   String        @id @default(cuid())
+  name                 String?
+  email                String        @unique
+  emailVerified        DateTime?
+  password             String?
+  image                String?
+  role                 UserRole      @default(USER)
+  archived             Boolean       @default(false)
+  ratings              Rating[]
+  transactions         Transaction[] @relation("UserAsBuyer")
+  soldTransactions     Transaction[] @relation("UserAsSeller")
+  accounts             Account[]
+  sessions             Session[]
+  archivedts           DateTime?
+  wallet               Wallet?
+  failedAttempts       Int           @default(0)
+  lockedUntil          DateTime?
+  username             String?       @unique
+  piNetworkAccessToken String?
 
   @@map(name: "users")
 }

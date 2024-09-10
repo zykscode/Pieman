@@ -1,43 +1,32 @@
-import PiNetwork from 'pi-backend';
+'use client';
 
-const apiKey = process.env.PI_API_KEY;
-const walletPrivateSeed = process.env.PI_WALLET_PRIVATE_SEED;
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import { APIPartialPayment } from '@pinetwork-js/api-typing';
+import { PiClient } from '@pinetwork-js/sdk';
+import { PaymentCallbacks } from '@pinetwork-js/sdk/build/types';
 
-if (!apiKey || !walletPrivateSeed) {
-  throw new Error(
-    'PI_API_KEY and PI_WALLET_PRIVATE_SEED must be set in environment variables',
-  );
-}
+export const Pi = new PiClient();
 
-const pi = new PiNetwork(apiKey, walletPrivateSeed);
-
-export const createPayment = async (
-  paymentData: PaymentData,
-): Promise<string> => {
-  return pi.createPayment(paymentData);
+export const initPiNetwork = () => {
+  if (typeof window !== 'undefined') {
+    Pi.init({ version: '2.0', sandbox: process.env.NODE_ENV !== 'production' });
+  }
 };
 
-export const submitPayment = async (paymentId: string): Promise<string> => {
-  return pi.submitPayment(paymentId);
+export const authenticate = async (scopes: string[]) => {
+  return Pi.authenticate(scopes, onIncompletePaymentFound);
 };
 
-export const completePayment = async (
-  paymentId: string,
-  txid: string,
-): Promise<any> => {
-  return pi.completePayment(paymentId, txid);
+export const createPayment = (
+  paymentData: APIPartialPayment,
+  callbacks: PaymentCallbacks,
+) => {
+  return Pi.createPayment(paymentData, callbacks);
 };
 
-export const getPayment = async (paymentId: string): Promise<any> => {
-  return pi.getPayment(paymentId);
+const onIncompletePaymentFound = (payment: any) => {
+  console.log('Incomplete payment found:', payment);
+  // Handle incomplete payment
 };
 
-export const cancelPayment = async (paymentId: string): Promise<any> => {
-  return pi.cancelPayment(paymentId);
-};
-
-export const getIncompleteServerPayments = async (): Promise<any[]> => {
-  return pi.getIncompleteServerPayments();
-};
-
-export default pi;
+export { PiClient };

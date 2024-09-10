@@ -1,130 +1,100 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 
 import { useToast } from '#/components/ui/use-toast';
-import apiClient from '#/lib/api-client';
+import { authenticate, createPayment } from '#/utils/piNetwork';
 
 interface PaymentComponentProps {
-  userInfo: {
-    uid: string;
-    username: string;
-    wallet_address?: string;
-  };
+  sellerId: string;
 }
 
-const PaymentComponent: React.FC<PaymentComponentProps> = ({ userInfo }) => {
+const PaymentComponent: React.FC<PaymentComponentProps> = ({ sellerId }) => {
+  const [user, setUser] = useState(null);
+  const [piAmount, setPiAmount] = useState('');
   const { toast } = useToast();
-  const buyerId = userInfo.uid!;
-  const [sellerId, setSellerId] = useState<string>('');
-  const [piAmount, setPiAmount] = useState<number>(0);
-  const [nairaAmount, setNairaAmount] = useState<number>(0);
-  const [rate, setRate] = useState<number>(0);
-  const [description, setDescription] = useState<string>('');
-  const [paymentId, setPaymentId] = useState<string | null>(null);
-  const [txid, setTxid] = useState<string | null>(null);
+
+  useEffect(() => {
+    const initAuth = async () => {
+      try {
+        const authResult = await authenticate([
+          'username',
+          'payments',
+          'wallet_address',
+        ]);
+        setUser(authResult.user);
+      } catch (error) {
+        console.error('Authentication failed:', error);
+      }
+    };
+    initAuth();
+  }, []);
 
   const handleCreatePayment = async () => {
-    try {
-      const response = await apiClient.post('/api/createPayment', {
-        sellerId,
-        piAmount,
-        nairaAmount,
-        rate,
-        description,
-      });
-      setPaymentId(response.data.paymentId);
-      toast({
-        variant: 'default',
-        title: 'Payment Created',
-        description: `Payment ID: ${response.data.paymentId}`,
-      });
-    } catch (error) {
+    if (!user) {
       toast({
         variant: 'destructive',
-        title: 'Failed to create payment',
-        description: 'An error occurred while creating the payment.',
+        title: 'Authentication required',
+        description: 'Please wait for authentication to complete.',
       });
+      return;
     }
-  };
 
-  const handleSubmitPayment = async () => {
-    try {
-      const response = await apiClient.post('/api/submitPayment', {
-        paymentId,
-      });
-      setTxid(response.data.txid);
-      toast({
-        variant: 'default',
-        title: 'Payment Submitted',
-        description: `Transaction ID: ${response.data.txid}`,
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to submit payment',
-        description: 'An error occurred while submitting the payment.',
-      });
-    }
-  };
-  const handleCompletePayment = async () => {
-    try {
-      const response = await apiClient.post('/api/completePayment', {
-        paymentId,
-        txid,
-      });
-      toast({
-        variant: 'default',
-        title: 'Payment Completed',
-        description: `Payment: ${response.data.completedPayment.identifier}`,
-      });
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Failed to complete payment',
-        description: 'An error occurred while completing the payment.',
-      });
-    }
+    const paymentData = {
+      amount: parseFloat(piAmount),
+      memo: 'Payment for goods or services',
+      metadata: { sellerId },
+    };
+
+    createPayment(paymentData, {
+      onReadyForServerApproval: (paymentId) => {
+        console.log('Ready for server approval:', paymentId);
+        toast({
+          variant: 'default',
+          title: 'Payment Created',
+          description: `Payment ID: ${paymentId}`,
+        });
+      },
+      onReadyForServerCompletion: (paymentId, txid) => {
+        console.log('Ready for server completion:', paymentId, txid);
+        toast({
+          variant: 'default',
+          title: 'Payment Approved',
+          description: `Transaction ID: ${txid}`,
+        });
+      },
+      onCancel: (paymentId) => {
+        console.log('Payment cancelled:', paymentId);
+        toast({
+          variant: 'destructive',
+          title: 'Payment Cancelled',
+          description: `Payment ID: ${paymentId}`,
+        });
+      },
+      onError: (error, payment) => {
+        console.error('Payment error:', error, payment);
+        toast({
+          variant: 'destructive',
+          title: 'Payment Error',
+          description: error.message,
+        });
+      },
+    });
   };
 
   return (
     <div>
-      <input type="text" value={buyerId} readOnly placeholder="Buyer ID" />
-      <input
-        type="text"
-        value={sellerId}
-        onChange={(e) => setSellerId(e.target.value)}
-        placeholder="Seller ID"
-      />
-      <input
-        type="number"
-        value={piAmount}
-        onChange={(e) => setPiAmount(Number(e.target.value))}
-        placeholder="Pi Amount"
-      />
-      <input
-        type="number"
-        value={nairaAmount}
-        onChange={(e) => setNairaAmount(Number(e.target.value))}
-        placeholder="Naira Amount"
-      />
-      <input
-        type="number"
-        value={rate}
-        onChange={(e) => setRate(Number(e.target.value))}
-        placeholder="Rate"
-      />
-      <input
-        type="text"
-        value={description}
-        onChange={(e) => setDescription(e.target.value)}
-        placeholder="Description"
-      />
-      <button onClick={handleCreatePayment}>Create Payment</button>
-      {paymentId && (
+      {!user ? (
+        <p>Authenticating...</p>
+      ) : (
         <>
-          <button onClick={handleSubmitPayment}>Submit Payment</button>
-          <button onClick={handleCompletePayment}>Complete Payment</button>
+          <input
+            type="number"
+            value={piAmount}
+            onChange={(e) => setPiAmount(e.target.value)}
+            placeholder="Pi Amount"
+          />
+          <button onClick={handleCreatePayment}>Create Payment</button>
         </>
       )}
     </div>
