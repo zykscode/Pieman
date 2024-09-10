@@ -30,7 +30,7 @@ const ProfilePage = () => {
   const { isLoaded, isSignedIn, user } = useUser();
   const { getToken, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
-  const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [transactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
 
@@ -48,12 +48,12 @@ const ProfilePage = () => {
     if (isLoaded && isSignedIn) {
       const fetchData = async () => {
         try {
-          const [profileData, transactionsData] = await Promise.all([
+          const [profileData] = await Promise.all([
             fetchUserProfile(),
-            fetchTransactions(5),
+            //fetchTransactions(5),
           ]);
           setProfile(profileData);
-          setTransactions(transactionsData);
+          // setTransactions(transactionsData);
         } catch (error) {
           console.error('Failed to fetch user data:', error);
           toast({
