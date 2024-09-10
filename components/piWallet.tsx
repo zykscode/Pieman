@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function PiWallet() {
   const [walletDetails, setWalletDetails] = useState(null);
@@ -37,7 +37,8 @@ export default function PiWallet() {
       <ul>
         {walletDetails.balances.map((balance, index) => (
           <li key={index}>
-            {balance.asset_type === 'native' ? 'Pi' : balance.asset_code}: {balance.balance}
+            {balance.asset_type === 'native' ? 'Pi' : balance.asset_code}:{' '}
+            {balance.balance}
           </li>
         ))}
       </ul>

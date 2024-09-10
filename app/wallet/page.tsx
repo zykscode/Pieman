@@ -2,7 +2,11 @@
 'use client';
 
 import { APIUserScopes } from '@pinetwork-js/api-typing';
+import { motion } from 'framer-motion';
 import { useEffect, useState } from 'react';
+import { FaUser } from 'react-icons/fa';
+
+import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
 
 // Add this type definition at the top of your file
 type UserDetails = {
@@ -11,7 +15,8 @@ type UserDetails = {
 };
 
 const WalletPage = () => {
-  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [userDetails] = useState<UserDetails | null>(null);
+
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -42,6 +47,7 @@ const WalletPage = () => {
 
     const handleAuthSuccess = (authResult: any) => {
       if (!isMounted) return;
+      console.log(authResult);
       // Fetch user details...
       // Update state...
     };
