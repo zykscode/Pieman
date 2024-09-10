@@ -12,8 +12,8 @@ import { getAxiosClient } from './utils';
 export default class PiNetwork {
   private API_KEY: string;
   private myKeypair: StellarSdk.Keypair;
-  private NETWORK_PASSPHRASE: NetworkPassphrase;
-  private currentPayment: PaymentDTO | null;
+  private NETWORK_PASSPHRASE!: NetworkPassphrase; // Add the ! operator here
+  private currentPayment: PaymentDTO | null = null;
   private axiosOptions: AxiosClientOptions | null;
 
   constructor(
