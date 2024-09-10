@@ -21,3 +21,12 @@ export const fetchUserProfile = async () => {
 export const setAuthToken = (token: string) => {
   api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
 };
+
+export const getExchangeRate = async (): Promise<number> => {
+  const response = await fetch('/api/exchange-rate');
+  if (!response.ok) {
+    throw new Error('Failed to fetch exchange rate');
+  }
+  const data = await response.json();
+  return data.rate;
+};
