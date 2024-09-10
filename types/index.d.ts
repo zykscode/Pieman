@@ -33,11 +33,12 @@ export interface CustomSignInResponse extends SignInResponse {
   error: string | null;
 }
 
-export type AuthResult = {
-  accessToken: string;
+import { AuthResult as SDKAuthResult } from '@pinetwork-js/sdk';
+
+export type AuthResult = Omit<SDKAuthResult, 'user'> & {
   user: {
     uid: string;
-    username: string;
+    username: string | undefined;
   };
 };
 
