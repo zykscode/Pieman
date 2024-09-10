@@ -1,6 +1,10 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
+/* eslint-disable unused-imports/no-unused-vars */
 'use client';
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
+import { APIPayment, APIUserScopes } from '@pinetwork-js/api-typing';
 import { PiClient } from '@pinetwork-js/sdk';
 
 export const Pi = new PiClient();
@@ -14,7 +18,10 @@ export const initPiNetwork = () => {
   }
 };
 
-export const authenticate = async (scopes: string[]) => {
+export const authenticate = (
+  scopes: APIUserScopes[],
+  onIncompletePaymentFound: (payment: APIPayment) => void = () => {},
+) => {
   if (typeof window === 'undefined' || !window.Pi) {
     throw new Error('Pi SDK is not available');
   }
