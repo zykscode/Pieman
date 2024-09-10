@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
 import {
@@ -57,7 +58,7 @@ export const PaymentComponent: React.FC<PaymentComponentProps> = ({
     };
 
     createPayment(paymentData, {
-      onReadyForServerApproval: (paymentId) => {
+      onReadyForServerApproval: (paymentId: any) => {
         console.log('Ready for server approval:', paymentId);
         toast({
           variant: 'default',
@@ -65,7 +66,7 @@ export const PaymentComponent: React.FC<PaymentComponentProps> = ({
           description: `Payment ID: ${paymentId}`,
         });
       },
-      onReadyForServerCompletion: (paymentId, txid) => {
+      onReadyForServerCompletion: (paymentId: any, txid: any) => {
         console.log('Ready for server completion:', paymentId, txid);
         toast({
           variant: 'default',
@@ -73,7 +74,7 @@ export const PaymentComponent: React.FC<PaymentComponentProps> = ({
           description: `Transaction ID: ${txid}`,
         });
       },
-      onCancel: (paymentId) => {
+      onCancel: (paymentId: any) => {
         console.log('Payment cancelled:', paymentId);
         toast({
           variant: 'destructive',
@@ -81,7 +82,7 @@ export const PaymentComponent: React.FC<PaymentComponentProps> = ({
           description: `Payment ID: ${paymentId}`,
         });
       },
-      onError: (error, payment) => {
+      onError: (error: { message: any }, payment: any) => {
         console.error('Payment error:', error, payment);
         toast({
           variant: 'destructive',
