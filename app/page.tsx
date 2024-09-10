@@ -7,6 +7,7 @@ import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import LoadingSpinner from '#/components/LoadingSpinner';
 import { useWallet } from '#/contexts/UserContext';
+import { fetchTopTraders } from '#/lib/api';
 
 const Hero = lazy(() => import('../components/Hero'));
 const Features = lazy(() => import('../components/Features'));
@@ -26,7 +27,7 @@ const TopTradersCard = lazy(() => import('#/components/TopTradersCard'));
 const Page = () => {
   const [isFirstTimeVisitor, setIsFirstTimeVisitor] = useState(false);
   const { isSignedIn, user, isLoaded } = useUser();
-  const { balance, address, refreshWallet } = useWallet();
+  const { balance, address } = useWallet();
   const [topTraders, setTopTraders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -37,13 +38,12 @@ const Page = () => {
     try {
       const traders = await fetchTopTraders();
       setTopTraders(traders);
-      await refreshWallet();
     } catch (err) {
       setError('Failed to load data. Please try again.');
     } finally {
       setIsLoading(false);
     }
-  }, [refreshWallet]);
+  }, []);
 
   useEffect(() => {
     const isReturningUser = localStorage.getItem('isReturningUser');

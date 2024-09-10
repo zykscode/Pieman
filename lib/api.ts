@@ -30,3 +30,25 @@ export const getExchangeRate = async (): Promise<number> => {
   const data = await response.json();
   return data.rate;
 };
+
+export async function fetchTopTraders(limit = 10) {
+  try {
+    const topTraders = await prisma.user.findMany({
+      orderBy: {
+        tradingVolume: 'desc',
+      },
+      take: limit,
+      select: {
+        id: true,
+        username: true,
+        tradingVolume: true,
+        profileImage: true,
+      },
+    });
+
+    return topTraders;
+  } catch (error) {
+    console.error('Error fetching top traders:', error);
+    throw new Error('Failed to fetch top traders');
+  }
+}
