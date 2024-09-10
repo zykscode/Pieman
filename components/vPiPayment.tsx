@@ -5,7 +5,7 @@ import { useToast } from '#/components/ui/use-toast';
 import { useUser } from '../contexts/UserContext';
 
 export function PiPayment() {
-  const { user } = useUser();
+  useUser();
   const { toast } = useToast();
 
   const handlePayment = async () => {
