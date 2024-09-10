@@ -2,12 +2,28 @@
 
 import { APIPayment, APIUserScopes } from '@pinetwork-js/api-typing';
 import { APIPartialPayment } from '@pinetwork-js/api-typing';
+import { PiClient } from '@pinetwork-js/sdk';
 import { PaymentCallbacks } from '@pinetwork-js/sdk/build/types';
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import axios from 'axios';
 
+declare global {
+  interface Window {
+    Pi: PiClient;
+  }
+}
+
 const PI_API_URL = 'https://api.minepi.com';
 const PI_SANDBOX_API_URL = 'https://api.testnet.minepi.com';
+
+const isPiAvailable = (pi: Window['Pi']): pi is NonNullable<Window['Pi']> => {
+  return (
+    pi !== undefined &&
+    'init' in pi &&
+    'authenticate' in pi &&
+    'createPayment' in pi
+  );
+};
 
 export const Pi = {
   init: ({
@@ -17,19 +33,7 @@ export const Pi = {
     version: '2.0';
     sandbox?: boolean;
   }) => {
-    if (typeof window !== 'undefined') {
-      window.Pi = window.Pi || {};
-      window.Pi.init = async ({
-        version,
-        sandbox,
-      }: {
-        version: string;
-        sandbox?: boolean;
-      }): Promise<void> => {
-        console.log(
-          `Pi SDK initialized with version ${version} in ${sandbox ? 'sandbox' : 'production'} mode`,
-        );
-      };
+    if (typeof window !== 'undefined' && isPiAvailable(window.Pi)) {
       window.Pi.init({ version, sandbox });
     }
   },
@@ -38,38 +42,20 @@ export const Pi = {
     scopes: APIUserScopes[],
     onIncompletePaymentFound: (payment: APIPayment) => void,
   ) => {
-    if (typeof window === 'undefined') {
-      throw new Error('Pi SDK is not available in server-side environment');
+    if (typeof window === 'undefined' || !isPiAvailable(window.Pi)) {
+      throw new Error('Pi SDK is not available');
     }
-
-    return new Promise((resolve, reject) => {
-      window.Pi.authenticate(scopes, onIncompletePaymentFound)
-        .then(resolve)
-        .catch(reject);
-    });
+    return window.Pi.authenticate(scopes, onIncompletePaymentFound);
   },
 
   createPayment: async (
     paymentData: APIPartialPayment,
     callbacks: PaymentCallbacks,
   ) => {
-    if (typeof window === 'undefined') {
-      throw new Error('Pi SDK is not available in server-side environment');
+    if (typeof window === 'undefined' || !isPiAvailable(window.Pi)) {
+      throw new Error('Pi SDK is not available');
     }
-
-    return new Promise((resolve, reject) => {
-      window.Pi.createPayment(paymentData, {
-        ...callbacks,
-        onReadyForServerApproval: (paymentId) => {
-          callbacks.onReadyForServerApproval(paymentId);
-          resolve(paymentId);
-        },
-        onError: (error, payment) => {
-          callbacks.onError(error, payment);
-          reject(error);
-        },
-      });
-    });
+    return window.Pi.createPayment(paymentData, callbacks);
   },
 
   openShareDialog: (title: string, message: string) => {
@@ -77,7 +63,7 @@ export const Pi = {
       throw new Error('Pi SDK is not available in server-side environment');
     }
 
-    window.Pi.openShareDialog(title, message);
+    window.Pi?.openShareDialog(title, message);
   },
 
   Ads: {
