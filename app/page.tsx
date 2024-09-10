@@ -6,7 +6,6 @@ import { motion } from 'framer-motion';
 import React, { lazy, Suspense, useCallback, useEffect, useState } from 'react';
 
 import LoadingSpinner from '#/components/LoadingSpinner';
-import { useWallet } from '#/contexts/UserContext';
 import { fetchTopTraders } from '#/lib/api';
 
 const Hero = lazy(() => import('../components/Hero'));
@@ -27,7 +26,6 @@ const TopTradersCard = lazy(() => import('#/components/TopTradersCard'));
 const Page = () => {
   const [isFirstTimeVisitor, setIsFirstTimeVisitor] = useState(false);
   const { isSignedIn, user, isLoaded } = useUser();
-  const { balance, address } = useWallet();
   const [topTraders, setTopTraders] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -84,8 +82,8 @@ const Page = () => {
               <Suspense fallback={<LoadingSpinner />}>
                 <ReturningUserDashboard
                   user={user}
-                  balance={balance}
-                  address={address!}
+                  balance={5}
+                  address={'up'}
                   onRefresh={loadData}
                 />
               </Suspense>
