@@ -1,10 +1,12 @@
+'use client';
+
 import { useMutation } from '@tanstack/react-query';
 import React from 'react';
 
 import { Button } from '#/components/ui/button';
 import { useToast } from '#/components/ui/use-toast';
-import { usePiNetwork } from '#/hooks/usePiNetwork';
 import apiClient from '#/lib/api-client';
+import { authenticate } from '#/lib/piNetwork';
 
 export interface AuthResult {
   accessToken: string;
@@ -15,14 +17,8 @@ export interface AuthResult {
   };
 }
 
-interface Payment {
-  from_address: string;
-  to_address: string;
-}
-
 const PiAuth: React.FC = () => {
   const { toast } = useToast();
-  const Pi = usePiNetwork(process.env.NODE_ENV !== 'production');
 
   const authMutation = useMutation<unknown, Error, AuthResult>({
     mutationFn: (authResult) =>
@@ -43,39 +39,33 @@ const PiAuth: React.FC = () => {
     },
   });
 
-  const onIncompletePaymentFound = (payment: Payment) => {
-    toast({
-      variant: 'destructive',
-      title: 'Incomplete payment found',
-      description: `Payment from ${payment.from_address} to ${payment.to_address} is incomplete.`,
-    });
-  };
-
-  const authenticate = async () => {
-    if (!Pi) return;
-
+  const handleAuthenticate = () => {
     const scopes = ['username', 'payments', 'wallet_address'];
-
-    try {
-      const authResult = await Pi.authenticate(
-        scopes,
-        onIncompletePaymentFound,
-      );
-      if (authResult) {
-        authMutation.mutate(authResult);
-      }
-    } catch (error) {
-      toast({
-        variant: 'destructive',
-        title: 'Authentication failed',
-        description:
-          error instanceof Error ? error.message : 'An unknown error occurred',
+    authenticate(scopes)
+      .then((authResult) => {
+        if (
+          authResult &&
+          typeof authResult === 'object' &&
+          'accessToken' in authResult &&
+          'user' in authResult
+        ) {
+          authMutation.mutate(authResult as AuthResult);
+        }
+      })
+      .catch((error) => {
+        toast({
+          variant: 'destructive',
+          title: 'Authentication failed',
+          description:
+            error instanceof Error
+              ? error.message
+              : 'An unknown error occurred',
+        });
       });
-    }
   };
 
   return (
-    <Button onClick={authenticate} disabled={authMutation.isPending}>
+    <Button onClick={handleAuthenticate} disabled={authMutation.isPending}>
       {authMutation.isPending
         ? 'Authenticating...'
         : 'Authenticate with Pi Network'}

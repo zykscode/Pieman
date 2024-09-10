@@ -1,8 +1,8 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
 
-import { prisma } from '#/lib/db'; // Adjust this import based on your project structure
-import { getServerSideWalletBalance } from '#/lib/piNetwork';
+import { prisma } from '#/lib/db';
+import { getWalletInfo } from '#/lib/piNetwork';
 
 export async function GET() {
   try {
@@ -11,17 +11,21 @@ export async function GET() {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const accessToken = await getPiNetworkAccessToken(userId);
-    if (!accessToken) {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { piNetworkAccessToken: true },
+    });
+
+    if (!user?.piNetworkAccessToken) {
       return NextResponse.json(
         { error: 'Pi Network access token not found' },
         { status: 404 },
       );
     }
 
-    const balance = await getServerSideWalletBalance(accessToken);
+    const walletInfo = await getWalletInfo(user.piNetworkAccessToken);
 
-    return NextResponse.json({ balance });
+    return NextResponse.json({ balance: walletInfo.balance });
   } catch (error) {
     console.error('Error fetching Pi wallet balance:', error);
     return NextResponse.json(
@@ -29,13 +33,4 @@ export async function GET() {
       { status: 500 },
     );
   }
-}
-
-async function getPiNetworkAccessToken(userId: string): Promise<string | null> {
-  const user = await prisma.user.findUnique({
-    where: { id: userId },
-    select: { piNetworkAccessToken: true },
-  });
-
-  return user?.piNetworkAccessToken || null;
 }

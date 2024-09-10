@@ -1,17 +1,14 @@
 import { auth } from '@clerk/nextjs/server';
 import { NextResponse } from 'next/server';
-import PiNetwork from 'pi-backend';
 import { z } from 'zod';
 
 import { prisma } from '#/lib/db';
-import { PI_API_KEY, PI_WALLET_PRIVATE_SEED } from '#/lib/piNetwork';
+import { completePayment } from '#/lib/piNetwork';
 
 const submitPaymentSchema = z.object({
   paymentId: z.string(),
+  txid: z.string(),
 });
-
-// Initialize PiNetwork SDK
-const pi = new PiNetwork(PI_API_KEY, PI_WALLET_PRIVATE_SEED);
 
 export async function POST(req: Request) {
   try {
@@ -21,21 +18,15 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { paymentId } = submitPaymentSchema.parse(body);
+    const { paymentId, txid } = submitPaymentSchema.parse(body);
 
-    // Submit the payment to the Pi Blockchain
-    const txid = await pi.submitPayment(paymentId);
+    const completedPayment = await completePayment(paymentId, txid);
 
-    // Update the transaction in the database
     await prisma.transaction.update({
       where: { paymentId },
       data: { status: 'CONFIRMED', txid },
     });
 
-    // Complete the payment
-    const completedPayment = await pi.completePayment(paymentId, txid);
-
-    // Check if the payment was completed successfully
     if (completedPayment.status.developer_completed) {
       return NextResponse.json({ txid, status: 'completed' });
     } else {
