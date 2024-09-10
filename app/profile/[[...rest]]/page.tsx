@@ -14,7 +14,7 @@ import {
 import { Button } from '#/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
 import { useToast } from '#/components/ui/use-toast';
-import { fetchTransactions, fetchUserProfile, setAuthToken } from '#/lib/api';
+import { fetchUserProfile, setAuthToken } from '#/lib/api';
 
 interface Profile {
   phone?: string;

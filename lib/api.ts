@@ -18,3 +18,6 @@ export const fetchUserProfile = async () => {
     throw error;
   }
 };
+export const setAuthToken = (token: string) => {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+};
