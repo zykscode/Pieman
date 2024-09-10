@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable @typescript-eslint/no-unused-vars */
+/* eslint-disable no-unused-vars */
+/* eslint-disable unused-imports/no-unused-vars */
 import React from 'react';
 
 import { useToast } from '#/components/ui/use-toast';
@@ -26,20 +30,20 @@ export function PiPayment() {
       };
 
       const payment = await window.Pi.createPayment(paymentData, {
-        onReadyForServerApproval: function (paymentId) {
+        onReadyForServerApproval: function (_paymentId: any) {
           // Server-side code to approve the payment
         },
-        onReadyForServerCompletion: function (paymentId, txid) {
+        onReadyForServerCompletion: function (_paymentId: any, _txid: any) {
           // Server-side code to complete the payment
         },
-        onCancel: function (paymentId) {
+        onCancel: function (_paymentId: any) {
           toast({
             title: 'Payment Cancelled',
             description: 'The payment was cancelled.',
             variant: 'destructive',
           });
         },
-        onError: function (error, payment) {
+        onError: function (error: { message: any }, _payment: any) {
           console.error(error);
           toast({
             title: 'Payment Error',
