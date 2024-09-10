@@ -62,7 +62,8 @@ export function PiPayment() {
     } catch (error) {
       toast({
         title: 'Payment Error',
-        description: error.message,
+        description:
+          error instanceof Error ? error.message : 'An unknown error occurred',
         variant: 'destructive',
       });
     }
