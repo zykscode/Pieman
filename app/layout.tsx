@@ -3,15 +3,15 @@ import '#/styles/globals.css';
 import { ClerkProvider } from '@clerk/nextjs';
 import { Analytics } from '@vercel/analytics/react';
 import type { Metadata } from 'next';
-import Script from 'next/script';
 
+import { AuthProvider } from '#/components/AuthContext';
 import BottomNav from '#/components/BottomNav';
 import Header from '#/components/header';
+import PiSdkLoader from '#/components/PiSdkLoader';
 import Sidebar from '#/components/Sidebar';
 import { TailwindIndicator } from '#/components/tailwind-indicator';
 import { ThemeProvider } from '#/components/theme-provider';
 import { Toaster } from '#/components/ui/toaster';
-import { PiNetworkProvider } from '#/contexts/PiNetworkContext';
 import { AppProvider } from '#/contexts/UserContext';
 import { fontSans } from '#/lib/fonts';
 import { cn } from '#/lib/utils';
@@ -35,19 +35,10 @@ export default function RootLayout({
         )}
       >
         <ClerkProvider>
-          <Script
-            src="https://sdk.minepi.com/pi-sdk.js"
-            strategy="beforeInteractive"
-          />
-          <Script id="pi-sdk-init">
-            {`
-              if (typeof window !== 'undefined' && window.Pi) {
-                Pi.init({ version: "2.0", sandbox: true });
-              }
-            `}
-          </Script>
-          <PiNetworkProvider>
-            <AppProvider>
+          <PiSdkLoader />
+
+          <AppProvider>
+            <AuthProvider>
               <ThemeProvider
                 attribute="class"
                 defaultTheme="system"
@@ -68,8 +59,8 @@ export default function RootLayout({
                 <Analytics />
                 <TailwindIndicator />
               </ThemeProvider>
-            </AppProvider>
-          </PiNetworkProvider>
+            </AuthProvider>
+          </AppProvider>
         </ClerkProvider>
       </body>
     </html>

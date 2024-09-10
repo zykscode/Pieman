@@ -1,83 +1,23 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 'use client';
 
-import { APIUserScopes } from '@pinetwork-js/api-typing';
 import { motion } from 'framer-motion';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { FaUser } from 'react-icons/fa';
 
+import { useAuth } from '#/components/AuthContext';
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
 
-// Add this type definition at the top of your file
-type UserDetails = {
-  username: string;
-  // Add other properties as needed
-};
-
 const WalletPage = () => {
-  const [userDetails] = useState<UserDetails | null>(null);
-
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const { user, authenticateUser } = useAuth();
 
   useEffect(() => {
-    let isMounted = true;
-
-    const initializePi = async () => {
-      if (typeof window !== 'undefined' && window.Pi) {
-        try {
-          await window.Pi.init({
-            version: '2.0',
-            sandbox: process.env.NODE_ENV !== 'production',
-          });
-          if (isMounted) {
-            const scopes: APIUserScopes[] = ['username'];
-            const auth = await window.Pi.authenticate(
-              scopes,
-              onIncompletePaymentFound,
-            );
-            handleAuthSuccess(auth);
-          }
-        } catch (error) {
-          console.error('Error initializing Pi SDK:', error);
-          handleAuthError(error);
-        }
-      }
+    const loginAutomatically = async () => {
+      await authenticateUser();
     };
 
-    const handleAuthSuccess = (authResult: any) => {
-      if (!isMounted) return;
-      console.log(authResult);
-      // Fetch user details...
-      // Update state...
-    };
-
-    const handleAuthError = (error: any) => {
-      if (!isMounted) return;
-      console.error('Failed to authenticate user:', error);
-      setError('An error occurred while authenticating. Please try again.');
-      setIsLoading(false);
-    };
-
-    initializePi();
-
-    return () => {
-      isMounted = false;
-    };
-  }, []);
-
-  function onIncompletePaymentFound(payment: any) {
-    // Handle incomplete payment
-    console.log('Incomplete payment found:', payment);
-  }
-
-  if (isLoading) {
-    return <div>Authenticating...</div>;
-  }
-
-  if (error) {
-    return <div className="text-red-500">{error}</div>;
-  }
+    loginAutomatically();
+  }, [authenticateUser]);
 
   return (
     <motion.div
@@ -86,7 +26,7 @@ const WalletPage = () => {
       transition={{ duration: 0.5 }}
     >
       <h1 className="text-2xl font-bold mb-6">User Profile</h1>
-      {userDetails && (
+      {user ? (
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center">
@@ -96,12 +36,16 @@ const WalletPage = () => {
           <CardContent>
             <div className="space-y-2">
               <p>
-                <strong>Username:</strong> {userDetails.username}
+                <strong>Username:</strong> {user.username}
               </p>
-              {/* Add other user details here */}
+              <p>
+                <strong>User data:</strong> {JSON.stringify(user)}
+              </p>
             </div>
           </CardContent>
         </Card>
+      ) : (
+        <div>Authenticating...</div>
       )}
     </motion.div>
   );
