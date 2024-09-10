@@ -55,7 +55,7 @@ export async function fetchTopTraders(limit = 10) {
 
 // Add these new methods for Pi Network ads
 export const isAdReady = async (
-  adType: 'banner' | 'interstitial' | 'rewarded',
+  adType: 'interstitial' | 'rewarded',
 ): Promise<boolean> => {
   if (typeof window !== 'undefined' && window.Pi) {
     return window.Pi.Ads.isAdReady(adType);
@@ -64,7 +64,7 @@ export const isAdReady = async (
 };
 
 export const requestAd = async (
-  adType: 'banner' | 'interstitial' | 'rewarded',
+  adType: 'interstitial' | 'rewarded',
 ): Promise<void> => {
   if (typeof window !== 'undefined' && window.Pi) {
     return window.Pi.Ads.requestAd(adType);
@@ -73,7 +73,7 @@ export const requestAd = async (
 };
 
 export const showAd = async (
-  adType: 'banner' | 'interstitial' | 'rewarded',
+  adType: 'interstitial' | 'rewarded',
 ): Promise<void> => {
   if (typeof window !== 'undefined' && window.Pi) {
     return window.Pi.Ads.showAd(adType);
