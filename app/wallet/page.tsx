@@ -23,26 +23,26 @@ const WalletPage = () => {
   useEffect(() => {
     let isMounted = true;
 
-    const initializePi = () => {
+    const initializePi = async () => {
       if (typeof window !== 'undefined' && window.Pi) {
-        window.Pi.init({ version: '2.0' })
-          .then(() => {
-            if (isMounted) authenticate();
-          })
-          .catch((error) => {
-            console.error('Failed to initialize Pi:', error);
-            if (isMounted) setError('Failed to initialize Pi SDK');
+        try {
+          await window.Pi.init({
+            version: '2.0',
+            sandbox: process.env.NODE_ENV !== 'production',
           });
-      } else {
-        if (isMounted) setError('Pi SDK not available');
+          if (isMounted) {
+            const scopes: APIUserScopes[] = ['username'];
+            const auth = await window.Pi.authenticate(
+              scopes,
+              onIncompletePaymentFound,
+            );
+            handleAuthSuccess(auth);
+          }
+        } catch (error) {
+          console.error('Error initializing Pi SDK:', error);
+          handleAuthError(error);
+        }
       }
-    };
-
-    const authenticate = () => {
-      const scopes: APIUserScopes[] = ['username'];
-      window.Pi.authenticate(scopes, onIncompletePaymentFound)
-        .then(handleAuthSuccess)
-        .catch(handleAuthError);
     };
 
     const handleAuthSuccess = (authResult: any) => {
