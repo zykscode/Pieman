@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { motion } from 'framer-motion';
 import React from 'react';
 import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
@@ -6,8 +7,11 @@ import { Trader, useTopTraders } from '#/hooks/useTopTraders';
 
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Skeleton } from './ui/skeleton';
-
-const TopTradersCard: React.FC = () => {
+interface TopTradersCardProps {
+  traders: any[];
+  isLoading: boolean;
+}
+const TopTradersCard: React.FC<TopTradersCardProps> = () => {
   const { traders, isLoading, error } = useTopTraders(5);
 
   const renderTraderItem = (trader: Trader, index: number) => (
