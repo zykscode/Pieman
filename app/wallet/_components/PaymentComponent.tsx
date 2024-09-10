@@ -1,5 +1,6 @@
 'use client';
 
+import { APIPartialPayment, APIUser } from '@pinetwork-js/api-typing';
 import React, { useEffect, useState } from 'react';
 
 import { useToast } from '#/components/ui/use-toast';
@@ -10,7 +11,7 @@ interface PaymentComponentProps {
 }
 
 const PaymentComponent: React.FC<PaymentComponentProps> = ({ sellerId }) => {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<APIUser | null>(null);
   const [piAmount, setPiAmount] = useState('');
   const { toast } = useToast();
 
@@ -40,10 +41,11 @@ const PaymentComponent: React.FC<PaymentComponentProps> = ({ sellerId }) => {
       return;
     }
 
-    const paymentData = {
+    const paymentData: APIPartialPayment = {
       amount: parseFloat(piAmount),
       memo: 'Payment for goods or services',
       metadata: { sellerId },
+      uid: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`, // Generate a unique ID
     };
 
     createPayment(paymentData, {
