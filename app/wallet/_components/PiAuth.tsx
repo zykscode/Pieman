@@ -1,12 +1,13 @@
 'use client';
 
+import { APIUserScopes } from '@pinetwork-js/api-typing';
 import { useMutation } from '@tanstack/react-query';
 import React from 'react';
 
 import { Button } from '#/components/ui/button';
 import { useToast } from '#/components/ui/use-toast';
 import apiClient from '#/lib/api-client';
-import { authenticate } from '#/lib/piNetwork';
+import { authenticate } from '#/utils/piNetwork';
 
 export interface AuthResult {
   accessToken: string;
@@ -40,27 +41,16 @@ const PiAuth: React.FC = () => {
   });
 
   const handleAuthenticate = () => {
-    const scopes = ['username', 'payments', 'wallet_address'];
+    const scopes: APIUserScopes[] = ['username', 'payments', 'wallet_address'];
     authenticate(scopes)
       .then((authResult) => {
-        if (
-          authResult &&
-          typeof authResult === 'object' &&
-          'accessToken' in authResult &&
-          'user' in authResult
-        ) {
-          authMutation.mutate(authResult as AuthResult);
+        if (authResult && authResult.user && authResult.accessToken) {
+          // Handle successful authentication
+          console.log('Authenticated user:', authResult.user);
         }
       })
       .catch((error) => {
-        toast({
-          variant: 'destructive',
-          title: 'Authentication failed',
-          description:
-            error instanceof Error
-              ? error.message
-              : 'An unknown error occurred',
-        });
+        console.error('Authentication failed:', error);
       });
   };
 
