@@ -2,13 +2,15 @@
 
 import React, { useEffect } from 'react';
 
-import { isAdReady, requestAd, showAd } from '#/lib/api';
+import { isAdReady, requestAd, showAd } from '../lib/api';
 
 interface PiAdsProps {
-  adType: 'banner' | 'interstitial' | 'rewarded';
+  adType: 'interstitial' | 'rewarded'; // Remove 'banner' from here
+  onAdLoaded?: () => void;
+  onAdFailed?: (error: Error) => void;
 }
 
-const PiAds: React.FC<PiAdsProps> = ({ adType }) => {
+const PiAds: React.FC<PiAdsProps> = ({ adType, onAdLoaded, onAdFailed }) => {
   useEffect(() => {
     const loadAd = async () => {
       try {
@@ -17,15 +19,17 @@ const PiAds: React.FC<PiAdsProps> = ({ adType }) => {
           await requestAd(adType);
         }
         await showAd(adType);
+        onAdLoaded?.();
       } catch (error) {
-        console.error('Error loading or showing ad:', error);
+        console.error('Failed to load or show ad:', error);
+        onAdFailed?.(error as Error);
       }
     };
 
     loadAd();
-  }, [adType]);
+  }, [adType, onAdLoaded, onAdFailed]);
 
-  return null; // This component doesn't render anything
+  return null;
 };
 
 export default PiAds;
