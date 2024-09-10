@@ -69,26 +69,22 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const signIn = useCallback(async () => {
     try {
       const scopes = ['username', 'payments'];
-      const authResult: AuthResult = await window.Pi!.authenticate(
+      if (typeof window === 'undefined' || !window.Pi) {
+        throw new Error('Pi SDK is not available');
+      }
+      const authResult: AuthResult = await window.Pi.authenticate(
         scopes,
         onIncompletePaymentFound,
       );
-      // Move signInUser function inside useCallback
-      const signInUser = async (authResult: AuthResult) => {
-        const response = await axiosClient.post<{ user: User }>(
-          '/user/signin',
-          {
-            authResult,
-          },
-        );
-        setUser(response.data.user);
-      };
-      await signInUser(authResult);
+      const response = await axiosClient.post<{ user: User }>('/user/signin', {
+        authResult,
+      });
+      setUser(response.data.user);
     } catch (error) {
       console.error('Authentication error:', error);
       throw error;
     }
-  }, [onIncompletePaymentFound, setUser]);
+  }, []);
 
   const signOutUser = async () => {
     try {
