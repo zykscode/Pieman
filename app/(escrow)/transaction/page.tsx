@@ -30,7 +30,7 @@ async function getTransactions(userId: string) {
     orderBy: {
       createdAt: 'desc',
     },
-    take: 50, // Limit to the last 50 transactions
+    take: 50, // Limit to the last 50 transactionss
   });
 }
 
