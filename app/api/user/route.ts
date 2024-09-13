@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
 
     const userDetails = {
       username: response.data.username,
+      wallet_address: response.data.wallet?.address,
       // Add any other relevant user details from the Pi API response
     };
 
