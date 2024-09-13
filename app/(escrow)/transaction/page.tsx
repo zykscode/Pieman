@@ -23,7 +23,7 @@ import {
 } from '#/components/ui/table';
 
 async function getTransactions(userId: string) {
-  return prisma.transaction.findMany({
+  return prisma?.transaction.findMany({
     where: {
       OR: [{ buyerId: userId }, { sellerId: userId }],
     },
@@ -62,7 +62,7 @@ export default async function TransactionsPage() {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {transactions.map(
+          {transactions?.map(
             (transaction: {
               id: Key | null | undefined;
               createdAt: {
