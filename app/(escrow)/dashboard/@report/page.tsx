@@ -1,7 +1,6 @@
 /* eslint-disable no-underscore-dangle */
 // app/report/page.tsx
 
-// import { currentUser } from '@clerk/nextjs/server';
 import Link from 'next/link';
 
 import { Button } from '#/components/ui/button';
