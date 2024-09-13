@@ -8,9 +8,18 @@ import { ScrollArea } from '#/components/ui/scroll-area';
 import { DashboardContent } from './_components/dashboard-content';
 import { getDashboardData } from './dashboard-data';
 
+interface DashboardData {
+  activeEscrows: number;
+  totalValueLocked: number;
+  recentTransactions: number;
+  successRate: number;
+}
+
 export default function DashboardPage() {
   const { user, authenticateUser } = useAuth();
-  const [dashboardData, setDashboardData] = useState(null);
+  const [dashboardData, setDashboardData] = useState<DashboardData | null>(
+    null,
+  );
 
   useEffect(() => {
     const fetchData = async () => {
