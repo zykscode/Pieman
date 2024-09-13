@@ -23,20 +23,25 @@ export async function POST(req: NextRequest) {
     console.log(me.data, 'sjhsgghas sghsghasghghasgaskj ssgsgjasj');
 
     // Fetch wallet from the database based on the wallet address
-    let wallet = await prisma.wallet.findUnique({
+    let wallet = await prisma?.wallet.findUnique({
       where: { address: auth.walletAddress },
       include: { user: true },
     });
 
     // If the wallet exists, update its access token
     if (wallet) {
-      await prisma.account.update({
+      const account = await prisma?.account.findFirst({
         where: { userId: wallet.userId },
-        data: { access_token: auth.accessToken },
       });
+      if (account) {
+        await prisma?.account.update({
+          where: { id: account.id },
+          data: { access_token: auth.accessToken },
+        });
+      }
     } else {
       // Otherwise, create a new user and wallet entry
-      wallet = await prisma.wallet.create({
+      wallet = await prisma?.wallet.create({
         data: {
           address: auth.walletAddress,
           user: {
