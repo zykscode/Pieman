@@ -21,20 +21,20 @@ async function generateReport(userId: string) {
 
   const [totalTransactions, successfulTransactions, totalVolume] =
     await Promise.all([
-      prisma.transaction.count({
+      prisma?.transaction.count({
         where: {
           OR: [{ buyerId: userId }, { sellerId: userId }],
           createdAt: { gte: oneMonthAgo },
         },
       }),
-      prisma.transaction.count({
+      prisma?.transaction.count({
         where: {
           OR: [{ buyerId: userId }, { sellerId: userId }],
           status: 'CONFIRMED',
           createdAt: { gte: oneMonthAgo },
         },
       }),
-      prisma.transaction.aggregate({
+      prisma?.transaction.aggregate({
         where: {
           OR: [{ buyerId: userId }, { sellerId: userId }],
           status: 'CONFIRMED',
@@ -50,10 +50,10 @@ async function generateReport(userId: string) {
     totalTransactions,
     successfulTransactions,
     successRate:
-      totalTransactions > 0
-        ? (successfulTransactions / totalTransactions) * 100
+      (totalTransactions ?? 0) > 0
+        ? ((successfulTransactions ?? 0) / (totalTransactions ?? 0)) * 100
         : 0,
-    totalVolume: totalVolume._sum.nairaAmount || 0,
+    totalVolume: totalVolume?._sum?.nairaAmount ?? 0,
   };
 }
 
