@@ -17,7 +17,7 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 // The AuthProvider component that wraps your app
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const { user, accessToken, error, authenticate } = usePiWallet();
+  const { user, accessToken, authenticate } = usePiWallet();
 
   // Function to authenticate the user using Pi SDK
   const authenticateUser = async () => {
