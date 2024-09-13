@@ -1,82 +1,51 @@
-/* eslint-disable react/no-array-index-key */
-import { motion } from 'framer-motion';
-import { useState } from 'react';
-import { FaChartLine, FaHandshake, FaShieldAlt } from 'react-icons/fa';
+import React from 'react';
 
-const features = [
-  {
-    title: 'Bank-Level Security',
-    description:
-      'Your funds and data are protected with cutting-edge encryption.',
-    icon: FaShieldAlt,
-    details:
-      'We use 256-bit AES encryption, multi-factor authentication, and regular security audits to ensure your assets are safe.',
-  },
-  {
-    title: 'Smart Escrow System',
-    description:
-      'Funds are securely held until all parties meet the agreed conditions.',
-    icon: FaHandshake,
-    details:
-      'Our blockchain-based escrow system automates the release of funds, reducing disputes and increasing trust between parties.',
-  },
-  {
-    title: 'Live Exchange Rates',
-    description: 'Benefit from real-time rates for Pi and Naira conversions.',
-    icon: FaChartLine,
-    details:
-      'We update our exchange rates every 60 seconds, sourcing data from multiple reliable exchanges to ensure accuracy.',
-  },
-];
-
-export default function Features() {
-  const [expandedFeature, setExpandedFeature] = useState<number | null>(null);
+const FeaturesComponent: React.FC = () => {
+  const features = [
+    {
+      title: 'Real-time Trading',
+      description: 'Execute trades instantly with our advanced platform.',
+    },
+    {
+      title: 'Market Analysis',
+      description: 'Access in-depth market analysis and insights.',
+    },
+    {
+      title: 'Portfolio Management',
+      description: 'Manage and optimize your portfolio with ease.',
+    },
+    {
+      title: 'Risk Assessment',
+      description: 'Evaluate and mitigate risks with our advanced tools.',
+    },
+  ];
 
   return (
-    <section id="features" className="bg-gray-100 py-12 sm:py-16 md:py-20">
-      <div className="container mx-auto px-4 text-center">
-        <h2 className="mb-8 sm:mb-12 text-2xl sm:text-3xl font-bold text-gray-900">
+    <div className="py-12 bg-gray-50">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <h2 className="text-3xl font-extrabold text-gray-900 sm:text-4xl text-center mb-8">
           Our Features
         </h2>
-        <div className="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-4">
           {features.map((feature, index) => (
-            <motion.div
+            <div
               key={index}
-              initial={{ opacity: 0, y: 50 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
-              className="rounded-lg bg-white p-6 shadow-md transition-all duration-300 hover:shadow-lg"
-              onClick={() =>
-                setExpandedFeature(expandedFeature === index ? null : index)
-              }
+              className="bg-white overflow-hidden shadow rounded-lg"
             >
-              <feature.icon className="mx-auto mb-4 text-3xl text-indigo-600" />
-              <h3 className="mb-3 text-xl font-semibold text-indigo-800">
-                {feature.title}
-              </h3>
-              <p className="text-gray-600 mb-4">{feature.description}</p>
-              {expandedFeature === index && (
-                <motion.div
-                  initial={{ opacity: 0, height: 0 }}
-                  animate={{ opacity: 1, height: 'auto' }}
-                  exit={{ opacity: 0, height: 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <p className="text-sm text-gray-500 mt-2">
-                    {feature.details}
-                  </p>
-                </motion.div>
-              )}
-              <button
-                className="mt-4 text-indigo-600 hover:text-indigo-800 transition-colors duration-300"
-                aria-expanded={expandedFeature === index}
-              >
-                {expandedFeature === index ? 'Show Less' : 'Learn More'}
-              </button>
-            </motion.div>
+              <div className="px-4 py-5 sm:p-6">
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  {feature.title}
+                </h3>
+                <p className="mt-1 text-sm text-gray-500">
+                  {feature.description}
+                </p>
+              </div>
+            </div>
           ))}
         </div>
       </div>
-    </section>
+    </div>
   );
-}
+};
+
+export default FeaturesComponent;

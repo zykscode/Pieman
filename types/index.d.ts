@@ -17,6 +17,11 @@ export interface AxiosClientOptions {
   headers?: Record<string, string>;
 }
 
+export interface Trader {
+  id: number;
+  name: string;
+  profit: number;
+}
 export type NetworkPassphrase = 'Pi Network' | 'Testnet';
 
 export interface PaymentArgs {

@@ -1,6 +1,5 @@
 'use client';
 
-import { SignIn, useAuth, useUser } from '@clerk/nextjs';
 import { motion } from 'framer-motion';
 import React, { useEffect, useState } from 'react';
 import {
@@ -11,12 +10,15 @@ import {
   FaUser,
 } from 'react-icons/fa';
 
+import { useAuth } from '#/components/AuthContext';
 import { Button } from '#/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '#/components/ui/card';
 import { useToast } from '#/components/ui/use-toast';
-import { fetchUserProfile, setAuthToken } from '#/lib/api';
+import { fetchUserProfile } from '#/lib/api';
 
 interface Profile {
+  fullName?: string;
+  email?: string;
   phone?: string;
   verificationStatus?: string;
 }
@@ -27,67 +29,41 @@ interface Transaction {
 }
 
 const ProfilePage = () => {
-  const { isLoaded, isSignedIn, user } = useUser();
-  const { getToken, signOut } = useAuth();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [transactions] = useState<Transaction[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const { toast } = useToast();
+  const { user, authenticateUser } = useAuth();
 
   useEffect(() => {
-    const setToken = async () => {
-      const token = await getToken();
-      if (token) {
-        setAuthToken(token);
+    const fetchData = async () => {
+      try {
+        if (!user) {
+          await authenticateUser();
+        }
+        const profileData = await fetchUserProfile();
+        setProfile(profileData);
+        // Fetch transactions here if needed
+      } catch (error) {
+        console.error('Failed to fetch user data:', error);
+        toast({
+          title: 'Error',
+          description: 'Failed to load user data. Please try again.',
+          variant: 'destructive',
+        });
+      } finally {
+        setIsLoading(false);
       }
     };
-    setToken();
-  }, [getToken]);
 
-  useEffect(() => {
-    if (isLoaded && isSignedIn) {
-      const fetchData = async () => {
-        try {
-          const [profileData] = await Promise.all([
-            fetchUserProfile(),
-            //fetchTransactions(5),
-          ]);
-          setProfile(profileData);
-          // setTransactions(transactionsData);
-        } catch (error) {
-          console.error('Failed to fetch user data:', error);
-          toast({
-            title: 'Error',
-            description: 'Failed to load user data. Please try again.',
-            variant: 'destructive',
-          });
-        } finally {
-          setIsLoading(false);
-        }
-      };
+    fetchData();
+  }, [user, authenticateUser, toast]);
 
-      fetchData();
-    } else {
-      setIsLoading(false);
-    }
-  }, [isLoaded, isSignedIn, toast]);
-
-  // ... rest of the component code (handleVerification, render logic) ...
-
-  if (!isLoaded || isLoading) {
+  if (isLoading) {
     return <div>Loading...</div>;
   }
 
-  if (!isSignedIn) {
-    return (
-      <div className="flex flex-col items-center justify-center min-h-screen">
-        <h1 className="text-2xl font-bold mb-6">
-          Please sign in to view your profile
-        </h1>
-        <SignIn routing="path" path="/profile" />
-      </div>
-    );
-  }
+  // Remove the isSignedIn check, assume the user is always signed in for this page
 
   return (
     <motion.div
@@ -106,11 +82,11 @@ const ProfilePage = () => {
           <div className="space-y-2">
             <div className="flex items-center">
               <FaUser className="mr-2 text-muted-foreground" />
-              <span>{user.fullName}</span>
+              <span>{profile?.fullName || 'Not provided'}</span>
             </div>
             <div className="flex items-center">
               <FaEnvelope className="mr-2 text-muted-foreground" />
-              <span>{user.primaryEmailAddress?.emailAddress}</span>
+              <span>{profile?.email || 'Not provided'}</span>
             </div>
             <div className="flex items-center">
               <FaPhone className="mr-2 text-muted-foreground" />
@@ -161,10 +137,20 @@ const ProfilePage = () => {
       </Card>
 
       <div className="space-y-2">
-        <Button className="w-full" onClick={() => user.update({})}>
+        <Button
+          className="w-full"
+          onClick={() => {
+            /* Implement edit profile logic */
+          }}
+        >
           Edit Profile
         </Button>
-        <Button className="w-full" onClick={() => signOut()}>
+        <Button
+          className="w-full"
+          onClick={() => {
+            /* Implement sign out logic */
+          }}
+        >
           Sign Out
         </Button>
       </div>

@@ -1,13 +1,15 @@
-// components/PiSdkLoader.tsx
-'use client'; // Ensure this only runs on the client side
-import Script from 'next/script';
+'use client';
+
 import { useEffect } from 'react';
 
 const PiSdkLoader = () => {
   useEffect(() => {
     const initPi = () => {
       if (window.Pi) {
-        window.Pi.init({ version: '2.0' });
+        window.Pi.init({
+          version: '2.0',
+          sandbox: process.env.NODE_ENV !== 'production',
+        });
       }
     };
 
@@ -22,20 +24,7 @@ const PiSdkLoader = () => {
     };
   }, []);
 
-  return (
-    <>
-      <Script
-        src="https://sdk.minepi.com/pi-sdk.js"
-        strategy="lazyOnload" // Load lazily after the page has loaded
-        onLoad={() => {
-          if (window.Pi) {
-            window.Pi.init({ version: '2.0' });
-            window.dispatchEvent(new Event('pi-sdk-loaded'));
-          }
-        }}
-      />
-    </>
-  );
+  return null;
 };
 
 export default PiSdkLoader;

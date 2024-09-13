@@ -1,48 +1,24 @@
 'use client';
 
-import React, { useState } from 'react';
+import React from 'react';
 
-import { useAuth } from '#/hooks/useAuth';
+import { useAuth } from '#/components/AuthContext';
+import { Button } from '#/components/ui/button';
 
-type AuthFormProps = {
-  type: 'signin' | 'signup';
-};
+export function AuthForm() {
+  const { authenticateUser } = useAuth();
 
-export function AuthForm({ type }: AuthFormProps) {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { signIn, signUp } = useAuth();
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleAuth = async () => {
     try {
-      if (type === 'signin') {
-        await signIn(email, password);
-      } else {
-        await signUp(email, password);
-      }
+      await authenticateUser();
     } catch (error) {
       console.error('Authentication error:', error);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <input
-        type="email"
-        value={email}
-        onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
-        required
-      />
-      <input
-        type="password"
-        value={password}
-        onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
-        required
-      />
-      <button type="submit">{type === 'signin' ? 'Sign In' : 'Sign Up'}</button>
-    </form>
+    <div>
+      <Button onClick={handleAuth}>Authenticate with Pi</Button>
+    </div>
   );
 }

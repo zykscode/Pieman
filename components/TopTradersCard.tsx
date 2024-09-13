@@ -1,75 +1,49 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-import { motion } from 'framer-motion';
 import React from 'react';
-import { FaArrowDown, FaArrowUp } from 'react-icons/fa';
 
-import { Trader, useTopTraders } from '#/hooks/useTopTraders';
+import { Trader } from '#/types';
 
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Skeleton } from './ui/skeleton';
-interface TopTradersCardProps {
-  traders: any[];
+interface TopTradersListProps {
+  traders: Trader[];
   isLoading: boolean;
 }
-const TopTradersCard: React.FC<TopTradersCardProps> = () => {
-  const { traders, isLoading, error } = useTopTraders(5);
 
-  const renderTraderItem = (trader: Trader, index: number) => (
-    <motion.li
-      key={trader.id}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3, delay: index * 0.1 }}
-      className="flex items-center justify-between rounded-lg bg-muted p-2 sm:p-3"
-    >
-      <span className="font-medium truncate mr-2">{trader.username}</span>
-      <div className="flex items-center">
-        <span className="mr-2 font-semibold whitespace-nowrap">
-          {trader.rate.toLocaleString()} NGN/Pi
-        </span>
-        {trader.type === 'buyer' ? (
-          <FaArrowUp className="text-green-500" />
-        ) : (
-          <FaArrowDown className="text-red-500" />
-        )}
-      </div>
-    </motion.li>
-  );
-
-  const renderContent = () => {
-    if (isLoading) {
-      return (
-        <div className="space-y-2">
-          {[...Array(5)].map((_, index) => (
-            <Skeleton key={index} className="h-10 w-full" />
-          ))}
-        </div>
-      );
-    }
-
-    if (error) {
-      return <p className="text-red-500">{error}</p>;
-    }
-
-    if (traders.length === 0) {
-      return <p>No top traders found at the moment.</p>;
-    }
-
-    return (
-      <ul className="space-y-2">
-        {traders.map((trader, index) => renderTraderItem(trader, index))}
-      </ul>
-    );
-  };
+const TopTradersList: React.FC<TopTradersListProps> = ({
+  traders,
+  isLoading,
+}) => {
+  if (isLoading) {
+    return <div className="text-center">Loading top traders...</div>;
+  }
 
   return (
-    <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="text-xl sm:text-2xl">Top 5 Traders</CardTitle>
-      </CardHeader>
-      <CardContent>{renderContent()}</CardContent>
-    </Card>
+    <div className="bg-white shadow rounded-lg p-6">
+      <h2 className="text-2xl font-bold mb-4">Top Traders</h2>
+      {traders.length > 0 ? (
+        <ul className="divide-y divide-gray-200">
+          {traders.map((trader) => (
+            <li
+              key={trader.id}
+              className="py-4 flex items-center justify-between"
+            >
+              <div>
+                <p className="text-sm font-medium text-gray-900">
+                  {trader.name}
+                </p>
+                <p className="text-sm text-gray-500">
+                  Profit: ${trader.profit.toFixed(2)}
+                </p>
+              </div>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                Top Performer
+              </span>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <p className="text-gray-500">No top traders available at the moment.</p>
+      )}
+    </div>
   );
 };
 
-export default TopTradersCard;
+export default TopTradersList;
