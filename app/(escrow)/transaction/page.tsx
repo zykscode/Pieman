@@ -21,7 +21,7 @@ import {
   TableHeader,
   TableRow,
 } from '#/components/ui/table';
-
+import { prisma } from '#/lib/db';
 async function getTransactions(userId: string) {
   return prisma?.transaction.findMany({
     where: {

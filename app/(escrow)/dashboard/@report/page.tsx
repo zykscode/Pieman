@@ -12,7 +12,7 @@ import {
   CardHeader,
   CardTitle,
 } from '#/components/ui/card';
-
+import { prisma } from '#/lib/db';
 async function generateReport(userId: string) {
   const currentDate = new Date();
   const oneMonthAgo = new Date(

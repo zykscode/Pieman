@@ -1,8 +1,8 @@
 import type { NextRequest } from 'next/server';
 import { NextResponse } from 'next/server';
 
+import { prisma } from '#/lib/db';
 import platformAPIClient from '#/lib/platformAPIClient';
-
 export async function POST(req: NextRequest) {
   const { authResult: auth } = await req.json();
 
